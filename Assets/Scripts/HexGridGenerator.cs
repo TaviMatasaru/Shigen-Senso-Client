@@ -9,14 +9,29 @@ public class HexGridGenerator : MonoBehaviour
     public int height = 10;
     public float hexWidth = 2.0f;
     public float hexHeight = 2.0f;
-
+    private HexTile[,] hexGrid;
+    private HexTile currentlySelectedTile;
+    private Dictionary<LandType, GameObject> landPrefabMap; // Dictionary to map land types to prefabs
     // Weights for each type of land
     private int[] dynamicWeights = {70, 10, 10, 10}; // Corresponding to free land, mountains, forests, crops
 
     private void Start()
     {
+        InitializeLandPrefabMap();
+        hexGrid = new HexTile[width, height];
         dynamicWeights = new int[] {70, 10, 10, 10}; // Corresponding to free land, mountains, forests, crops
         GenerateGrid();
+    }
+
+    void InitializeLandPrefabMap()
+    {
+        landPrefabMap = new Dictionary<LandType, GameObject>
+        {
+            {LandType.FreeLand, landPrefabs[0]},
+            {LandType.Mountain, landPrefabs[1]},
+            {LandType.Forest, landPrefabs[2]},
+            {LandType.Crops, landPrefabs[3]}
+        };
     }
 
    void GenerateGrid()
@@ -28,20 +43,48 @@ public class HexGridGenerator : MonoBehaviour
         {
             for (int y = 0; y < height; y++)
             {
-                // Calculate the offset for the odd or even columns
-                float xPos = x * horizontalSpacing + (y % 2 == 1 ? horizontalSpacing / 2 : 0);
-                
-                // Adjust yPos for flat-topped hexes
-                float yPos = y * hexHeight * 0.75f;
+                // Get a random Land Type for the tile
+                LandType landType = GetRandomLandType();
+                GameObject landPrefab = GetLandTypePrefab(landType);
 
                 // Instantiate the hex prefab at the calculated position
-                GameObject hex = Instantiate(GetRandomLandPrefab(), new Vector3(xPos, 0, yPos), Quaternion.identity);
+                GameObject hex = Instantiate(landPrefab, CalculatePosition(x, y), Quaternion.identity);
                 hex.transform.SetParent(this.transform);
+
+                // Add a HexTile component to each hex and store it in the array
+                HexTile tile = hex.AddComponent<HexTile>();
+                tile.Initialize(landType, landPrefab, new Vector2Int(x, y), this);
+                hexGrid[x, y] = tile; // Store the HexTile in the array
+                
             }
         }
     }
 
-    GameObject GetRandomLandPrefab()
+    public void SelectTile(HexTile tile)
+    {
+        if (currentlySelectedTile != null)
+            currentlySelectedTile.Deselect();
+
+        if (currentlySelectedTile != tile)
+        {
+            currentlySelectedTile = tile;
+            currentlySelectedTile.Select();
+        }
+        else
+        {
+            currentlySelectedTile = null;
+        }
+    }
+
+    Vector3 CalculatePosition(int x, int y)
+    {
+        float horizontalSpacing = hexWidth * Mathf.Sqrt(3) / 2;
+        float xPos = x * horizontalSpacing + (y % 2 == 1 ? horizontalSpacing / 2 : 0);
+        float yPos = y * hexHeight * 0.75f;
+        return new Vector3(xPos, 0, yPos);
+    }
+
+    LandType GetRandomLandType()
     {
         int totalWeight = 0;
         foreach (int weight in dynamicWeights)
@@ -58,12 +101,45 @@ public class HexGridGenerator : MonoBehaviour
             if (randomIndex < sum)
             {
                 AdjustWeights(i);
-                return landPrefabs[i];
+                LandType landType = GetLandTypeFromIdex(i);
+                return landType;
             }
         }
 
-        return null; // Should never happen unless weights are misconfigured
+        return LandType.FreeLand; // Should never happen unless weights are misconfigured
     }
+
+    LandType GetLandTypeFromIdex(int index)
+    {
+        switch(index)
+        {
+            case 1 :
+                return LandType.Mountain;
+            case 2 :
+                return LandType.Forest;
+            case 3 :
+                return LandType.Crops;
+            default :
+                return LandType.FreeLand;
+        } 
+    }
+
+    public GameObject GetLandTypePrefab(LandType landType)
+{
+    switch(landType)
+    {
+        case LandType.Mountain:
+            return landPrefabs[1];
+        case LandType.Forest:
+            return landPrefabs[2];
+        case LandType.Crops:
+            return landPrefabs[3];
+        case LandType.Castle: 
+            return landPrefabs[4];
+        default:
+            return landPrefabs[0]; // Free Land
+    }
+}
 
     void AdjustWeights(int resourceIndex)
     {
@@ -88,4 +164,17 @@ public class HexGridGenerator : MonoBehaviour
         
     }
 
+    LandType DetermineLandType() {
+        
+        return LandType.FreeLand; // Placeholder
+    }
+
+}
+
+public enum LandType {
+    FreeLand,
+    Mountain,
+    Forest,
+    Crops,
+    Castle
 }

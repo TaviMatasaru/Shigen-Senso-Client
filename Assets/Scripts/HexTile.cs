@@ -1,53 +1,60 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public class HexTile : MonoBehaviour
 {
-    public LandType LandType { get; private set; }
-    public GameObject LandPrefab { get; private set; }
-    public Vector2Int GridPosition { get; private set; }
-    public HexGridGenerator GridGenerator { get; set; } // Add a reference to the generator to communicate back
-    private Vector3 originalScale; // To store the original scale
-    private Vector3 originalPosition;
+    public LandType _landType;
+    public Vector2Int _gridPosition;
+    private Vector3 _originalScale;
+    private Vector3 _originalPosition;
 
-    public void Initialize(LandType landType, GameObject landPrefab, Vector2Int gridPosition, HexGridGenerator generator)
+    public void Initialize(LandType landType, Vector2Int gridPosition)
     {
-        this.LandType = landType;
-        this.LandPrefab = landPrefab;
-        this.GridPosition = gridPosition;
-        this.GridGenerator = generator;
+        this._landType = landType;
+        this._gridPosition = gridPosition;       
     }
 
     void Awake()
     {
-        // Cache the original scale and position
-        originalScale = transform.localScale;
-        originalPosition = transform.position;
+        _originalScale = transform.localScale;
+        _originalPosition = transform.position;
     }
 
     void OnMouseDown()
-    {
-        GridGenerator.SelectTile(this);
+    {        
+        if (EventSystem.current.IsPointerOverGameObject())
+            return;  
+  
+        HexGridGenerator.Instance.SelectTile(this);
     }
 
     public void Select()
-{
-        transform.localScale = originalScale * 1.3f;
-        transform.position = new Vector3(originalPosition.x, originalPosition.y + 0.15f, originalPosition.z);
-}
+    {
+        transform.localScale = _originalScale * 1.3f;
+        transform.position = new Vector3(_originalPosition.x, _originalPosition.y + 0.15f, _originalPosition.z);
 
-public void Deselect()
-{
-        transform.localScale = originalScale;
-        transform.position = originalPosition;
-}
+        if(this._landType == LandType.FreeLand && HexGridGenerator.Instance._isCastleBuild == false)
+        {
+            UI_BuildingOptions.instance._castleElement.SetActive(true);
+        }
+        if(this._landType == LandType.PlayerFreeLand)
+        {
+            UI_BuildingOptions.instance._buildingElements.SetActive(true);
+        }
+    }
 
-public void ChangeToCastle()
-{
-    LandType = LandType.Castle; // Update the land type
-    GameObject castlePrefab = GridGenerator.GetLandTypePrefab(LandType.Castle); // Assuming you've added a castle type
-    Instantiate(castlePrefab, transform.position, Quaternion.identity, transform.parent);
-    Destroy(gameObject); // Destroy the old land tile
-}
+    public void Deselect()
+    {
+        transform.localScale = _originalScale;
+        transform.position = _originalPosition;
+        UI_BuildingOptions.instance.SetStatus(false);
+    }
+
+    public void RequestChangeLandType(LandType newLandType)
+    {
+        HexGridGenerator.Instance.ChangeTileLandType(this, newLandType);
+    }
+
 }

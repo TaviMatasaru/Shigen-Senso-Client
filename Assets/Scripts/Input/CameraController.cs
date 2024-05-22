@@ -1,28 +1,29 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public class CameraController : MonoBehaviour
 {
     [SerializeField] private Camera _camera = null;
     [SerializeField] private float _moveSpeed = 50;
-    [SerializeField] private float _moveSmooth = 5;
+    [SerializeField] private float _moveSmooth = 3;
     [SerializeField] private float _zoomSpeed = 5f;
-    [SerializeField] private float _zoomSmooth = 5;
+    [SerializeField] private float _zoomSmooth = 3;
 
     private Controls _inputs = null;
 
     private bool _zooming = false;
     private bool _moving = false;
-    private Vector3 _center = Vector3.zero;
+    private Vector3 _center = new Vector3(7.5f, 10f);
     private float _right = 100;
     private float _left = 100;
     private float _up = 100;
-    private float _down = 100;
+    private float _down = 10;
     private float _angle = 45;
     private float _zoom = 5;
     private float _zoomMin = 1;
-    private float _zoomMax = 10;
+    private float _zoomMax = 12;
     private Vector2 _zoomPositionOnScreen = Vector2.zero;
     private Vector3 _zoomPositionInWorld = Vector3.zero;
     private float _zoomBaseValue = 0;
@@ -44,7 +45,7 @@ public class CameraController : MonoBehaviour
 
     private void Start()
     {
-        Initialize(Vector3.zero, 10, 10, 10, 10, 45, 5, 3, 10);
+        Initialize(new Vector3(10f, 10f, -1f), 11, 11, 8, 9, 45, 15, 3, 10);
     }
 
     public void Initialize(Vector3 center, float right, float left, float up, float down, float angle, float zoom, float zoomMin, float zoomMax)
@@ -82,8 +83,7 @@ public class CameraController : MonoBehaviour
         _inputs.Main.Move.started += _ => MoveStarted();
         _inputs.Main.Move.canceled += _ => MoveCanceled();
         _inputs.Main.TouchZoom.started += _ => ZoomStarted();
-        _inputs.Main.TouchZoom.canceled += _ => ZoomCanceled();
-
+        _inputs.Main.TouchZoom.canceled += _ => ZoomCanceled();     
     }
 
     private void OnDisable()
@@ -91,13 +91,25 @@ public class CameraController : MonoBehaviour
         _inputs.Main.Move.started -= _ => MoveStarted();
         _inputs.Main.Move.canceled -= _ => MoveCanceled();
         _inputs.Main.TouchZoom.started -= _ => ZoomStarted();
-        _inputs.Main.TouchZoom.canceled -= _ => ZoomCanceled();
+        _inputs.Main.TouchZoom.canceled -= _ => ZoomCanceled();        
         _inputs.Disable();
+    }
+
+    public bool IsScreenPointOverUI(Vector2 position)
+    {
+        PointerEventData data = new PointerEventData(EventSystem.current);
+        data.position = position;
+        List<RaycastResult> results = new List<RaycastResult>();
+        EventSystem.current.RaycastAll(data, results);
+        return results.Count > 0;
     }
 
     private void MoveStarted()
     {
-        _moving = true;
+        if (UI_Main.instance.isActive)
+        {
+            _moving = true;
+        }        
     }
 
     private void MoveCanceled()
@@ -107,20 +119,23 @@ public class CameraController : MonoBehaviour
 
     private void ZoomStarted()
     {
-        Vector2 touch0 = _inputs.Main.TouchPosition0.ReadValue<Vector2>();
-        Vector2 touch1 = _inputs.Main.TouchPosition1.ReadValue<Vector2>();
-        _zoomPositionOnScreen = Vector2.Lerp(touch0, touch1, 0.5f);
-        _zoomPositionInWorld = CameraScreenPositionToPlanePosition(_zoomPositionOnScreen);
-        _zoomBaseValue = _zoom;
+        if (UI_Main.instance.isActive)
+        {
+            Vector2 touch0 = _inputs.Main.TouchPosition0.ReadValue<Vector2>();
+            Vector2 touch1 = _inputs.Main.TouchPosition1.ReadValue<Vector2>();
+            _zoomPositionOnScreen = Vector2.Lerp(touch0, touch1, 0.5f);
+            _zoomPositionInWorld = CameraScreenPositionToPlanePosition(_zoomPositionOnScreen);
+            _zoomBaseValue = _zoom;
 
-        touch0.x /= Screen.width;
-        touch1.x /= Screen.width;
-        touch0.y /= Screen.height;
-        touch1.y /= Screen.height;
+            touch0.x /= Screen.width;
+            touch1.x /= Screen.width;
+            touch0.y /= Screen.height;
+            touch1.y /= Screen.height;
 
-        _zoomBaseDistance = Vector2.Distance(touch0, touch1);
+            _zoomBaseDistance = Vector2.Distance(touch0, touch1);
 
-        _zooming = true;
+            _zooming = true;
+        }        
     }
 
     private void ZoomCanceled()

@@ -7,10 +7,12 @@ public class UI_BuildingOptions : MonoBehaviour
 {
     [SerializeField] public GameObject _buildingElements = null;
     [SerializeField] public GameObject _castleElement = null;
+    [SerializeField] public GameObject _armyCampElement = null;
     [SerializeField] public Button _buildCastle = null;
     [SerializeField] public Button _buildGoldMine = null;
     [SerializeField] public Button _buildSawmill = null;
     [SerializeField] public Button _buildFarm = null;
+    [SerializeField] public Button _builArmyCamp = null;
 
     
 
@@ -21,6 +23,7 @@ public class UI_BuildingOptions : MonoBehaviour
         _instance = this;
         _buildingElements.SetActive(false);
         _castleElement.SetActive(false);
+        _armyCampElement.SetActive(false);
     }
 
     private void Start()
@@ -29,6 +32,7 @@ public class UI_BuildingOptions : MonoBehaviour
         _buildGoldMine.onClick.AddListener(BuildGoldMineClicked);
         _buildSawmill.onClick.AddListener(BuildSawmillClicked);
         _buildFarm.onClick.AddListener(BuildFarmClicked);
+        _builArmyCamp.onClick.AddListener(BuildArmyCampClicked);
     }
 
     public void BuildCastleClicked()
@@ -41,7 +45,7 @@ public class UI_BuildingOptions : MonoBehaviour
             {
                 HexGridGenerator.Instance.ChangeTileLandType(selectedTile, LandType.Castle);
                 HexGridGenerator.Instance._isCastleBuild = true;
-                HexGridGenerator.Instance.TransformNeighbors(selectedTile);
+                HexGridGenerator.Instance.TransformCastleNeighbors(selectedTile);
                 _castleElement.SetActive(false);
             }
             else
@@ -49,24 +53,22 @@ public class UI_BuildingOptions : MonoBehaviour
                 Debug.Log("Only one castle allowed");
             }
         }
-        else
-        {
-            Debug.LogError("No tile is currently selected when trying to build!");
-        }
     }
 
     public void BuildGoldMineClicked()
     {
 
         HexTile selectedTile = HexGridGenerator.Instance.GetCurrentlySelectedTile();
-        if (selectedTile != null)
+        if (selectedTile != null && ResourceManager.instance.CanBuyGoldMine())
         {
-            HexGridGenerator.Instance.ChangeTileLandType(selectedTile, LandType.GoldMine);
+            ResourceManager.instance.BuyGoldMine();
+            HexGridGenerator.Instance.ChangeTileLandType(selectedTile, LandType.GoldMine);           
             _buildingElements.SetActive(false);
+            
         }
         else
         {
-            Debug.LogError("No tile is currently selected when trying to build!");
+            Debug.LogError("No Resources to Build!");
         }
     }
 
@@ -74,14 +76,15 @@ public class UI_BuildingOptions : MonoBehaviour
     {
 
         HexTile selectedTile = HexGridGenerator.Instance.GetCurrentlySelectedTile();
-        if (selectedTile != null)
+        if (selectedTile != null && ResourceManager.instance.CanBuySawmill())
         {
-            HexGridGenerator.Instance.ChangeTileLandType(selectedTile, LandType.Sawmill);
+            ResourceManager.instance.BuySawmill();
+            HexGridGenerator.Instance.ChangeTileLandType(selectedTile, LandType.Sawmill);   
             _buildingElements.SetActive(false);
         }
         else
         {
-            Debug.LogError("No tile is currently selected when trying to build!");
+            Debug.LogError("No Resources to Build!");
         }
     }
 
@@ -89,14 +92,32 @@ public class UI_BuildingOptions : MonoBehaviour
     {
 
         HexTile selectedTile = HexGridGenerator.Instance.GetCurrentlySelectedTile();
-        if (selectedTile != null)
+        if (selectedTile != null && ResourceManager.instance.CanBuyFarm())
         {
-            HexGridGenerator.Instance.ChangeTileLandType(selectedTile, LandType.Farm);
+            ResourceManager.instance.BuyFarm();
+            HexGridGenerator.Instance.ChangeTileLandType(selectedTile, LandType.Farm);            
             _buildingElements.SetActive(false);
         }
         else
         {
-            Debug.LogError("No tile is currently selected when trying to build!");
+            Debug.LogError("No Resources to Build!");
+        }
+    }
+
+    public void BuildArmyCampClicked()
+    {
+
+        HexTile selectedTile = HexGridGenerator.Instance.GetCurrentlySelectedTile();
+        if (selectedTile != null && ResourceManager.instance.CanBuyArmyCamp())
+        {
+            ResourceManager.instance.BuyArmyCamp();
+            HexGridGenerator.Instance.ChangeTileLandType(selectedTile, LandType.ArmyCamp);             
+                HexGridGenerator.Instance.TransformArmyCampNeighbors(selectedTile);
+                _armyCampElement.SetActive(false);
+        }
+        else
+        {
+            Debug.LogError("No Resources to Build!");
         }
     }
 
@@ -104,5 +125,6 @@ public class UI_BuildingOptions : MonoBehaviour
     {
         _buildingElements.SetActive(status);
         _castleElement.SetActive(status);
+        _armyCampElement.SetActive(status);
     }
 }

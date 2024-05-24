@@ -4,6 +4,9 @@ using UnityEngine;
 
 public class Building : MonoBehaviour
 {
+
+    private static Building _instance = null; public static Building instance { get { return _instance; } }
+
     [System.Serializable] public class Level
     {
         public int level = 1;

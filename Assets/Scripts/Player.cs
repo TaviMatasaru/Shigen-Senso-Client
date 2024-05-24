@@ -5,6 +5,7 @@ using DevelopersHub.RealtimeNetworking.Client;
 
 public class Player : MonoBehaviour
 {
+   
     public enum RequestsID
     {
         AUTH = 1,
@@ -14,7 +15,6 @@ public class Player : MonoBehaviour
 
     public void Start()
     {
-        RealtimeNetworking.OnLongReceived += ReceivedLong;
         RealtimeNetworking.OnPacketReceived += ReceivedPacket;
         ConnectToServer();
     }
@@ -31,7 +31,10 @@ public class Player : MonoBehaviour
         {
             RealtimeNetworking.OnDisconnectedFromServer += DisconnectedFromServer;
             string device = SystemInfo.deviceUniqueIdentifier;
-            Sender.TCP_Send((int)RequestsID.AUTH, device);
+            Packet packet = new Packet();
+            packet.Write((int)RequestsID.AUTH);
+            packet.Write(device);
+            Sender.TCP_Send(packet);
         }
         else
         {
@@ -40,38 +43,44 @@ public class Player : MonoBehaviour
         RealtimeNetworking.OnConnectingToServerResult -= ConnectionResponse;
     }
 
-    private void ReceivedLong(int id, long value)
+
+    private void ReceivedPacket(Packet received_packet)
     {
-        switch (id)
+        int id = received_packet.ReadInt();
+
+        switch ((RequestsID)id)
         {
-            case 1:
-                Debug.Log(value);
-                Sender.TCP_Send((int)RequestsID.SYNC, SystemInfo.deviceUniqueIdentifier);
+            case RequestsID.AUTH:
+                long accountID = received_packet.ReadLong();
+                Packet packetToSend = new Packet();
+                packetToSend.Write((int)RequestsID.SYNC);
+                packetToSend.Write(SystemInfo.deviceUniqueIdentifier);
+                Sender.TCP_Send(packetToSend);
+                break;
+
+            case RequestsID.SYNC:
+                string playerData = received_packet.ReadString();
+                Data.Player playerSyncData = Data.Deserialize<Data.Player>(playerData);
+                SyncPlayerData(playerSyncData);
+                break;
+
+            case RequestsID.BUILD:               
                 break;
         }
+
     }
 
-    private void ReceivedPacket(Packet packet)
+    private void SyncPlayerData(Data.Player player)
     {
-        int id = packet.ReadInt();
-        switch (id)
-        {
-            case 2:
-                string playerClass = packet.ReadString();
-                Data.Player player = Data.Deserialize<Data.Player>(playerClass);
-                UI_Main.instance._goldText.text = player.gold.ToString();
-                UI_Main.instance._gemsText.text = player.gems.ToString();
-                UI_Main.instance._woodText.text = player.wood.ToString();
-                UI_Main.instance._stoneText.text = player.stone.ToString();
-                UI_Main.instance._foodText.text = player.food.ToString();
+        UI_Main.instance._goldText.text = player.gold.ToString();
+        UI_Main.instance._gemsText.text = player.gems.ToString();
+        UI_Main.instance._woodText.text = player.wood.ToString();
+        UI_Main.instance._stoneText.text = player.stone.ToString();
+        UI_Main.instance._foodText.text = player.food.ToString();
 
-                Debug.Log("Am primit datele despre player");
-
-                break;
-        }
     }
 
-
+    
     private void DisconnectedFromServer()
     {
         RealtimeNetworking.OnDisconnectedFromServer -= DisconnectedFromServer;

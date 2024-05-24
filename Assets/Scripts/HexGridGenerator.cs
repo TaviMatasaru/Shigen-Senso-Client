@@ -9,23 +9,17 @@ public class HexGridGenerator : MonoBehaviour
     public static HexGridGenerator Instance { get; private set; } // Singleton instance
 
     public GameObject[] landPrefabs; // Array of prefabs for the lands
-    public int width = 10;
-    public int height = 10;
-    public float hexWidth = 2.0f;
-    public float hexHeight = 2.0f;
+    public int width = 20;
+    public int height = 20;
+    public float hexWidth = 1.18f;
+    public float hexHeight = 1.18f;
     private HexTile[,] hexGrid;
     private HexTile currentlySelectedTile;
     public bool _isCastleBuild = false;
-    
-    // Weights for each type of land
-    private int[] dynamicWeights = {70, 10, 10, 10}; // Corresponding to free land, mountains, forests, crops
 
-    private void Start()
-    {
-        hexGrid = new HexTile[width, height];
-        dynamicWeights = new int[] {70, 10, 10, 10}; // Corresponding to free land, mountains, forests, crops
-        GenerateGrid();
-    }
+    // Weights for each type of land
+    private int[] dynamicWeights = { 70, 10, 10, 10 }; // Corresponding to free land, mountains, forests, crops
+
 
     private void Awake()
     {
@@ -39,8 +33,10 @@ public class HexGridGenerator : MonoBehaviour
     }
 
 
-    void GenerateGrid()
+    public void GenerateGrid()
     {
+        hexGrid = new HexTile[width, height];
+        dynamicWeights = new int[] { 70, 10, 10, 10 };
         for (int x = 0; x < width; x++)
         {
             for (int y = 0; y < height; y++)
@@ -54,7 +50,7 @@ public class HexGridGenerator : MonoBehaviour
                 hex.transform.SetParent(this.transform);
 
                 //Add a HexTile component to each hex and store it in the array
-                Vector2Int gridPosition = new Vector2Int(x, y);        
+                Vector2Int gridPosition = new Vector2Int(x, y);
                 HexTile tile = hex.AddComponent<HexTile>();
                 tile.Initialize(landType, gridPosition);
                 hexGrid[x, y] = tile; // Store the HexTile in the array
@@ -92,7 +88,7 @@ public class HexGridGenerator : MonoBehaviour
         return new Vector3(xPos, 0, yPos);
     }
 
-    LandType GetRandomLandType()
+    public LandType GetRandomLandType()
     {
         int totalWeight = 0;
         foreach (int weight in dynamicWeights)
@@ -117,53 +113,53 @@ public class HexGridGenerator : MonoBehaviour
         return LandType.FreeLand; // Should never happen unless weights are misconfigured
     }
 
-    LandType GetLandTypeFromIdex(int index)
+    public LandType GetLandTypeFromIdex(int index)
     {
-        switch(index)
+        switch (index)
         {
-            case 1 :
+            case 1:
                 return LandType.Mountain;
-            case 2 :
+            case 2:
                 return LandType.Forest;
-            case 3 :
+            case 3:
                 return LandType.Crops;
-            default :
+            default:
                 return LandType.FreeLand;
-        } 
+        }
     }
 
     public GameObject GetLandTypePrefab(LandType landType)
-{
-    switch(landType)
     {
-        case LandType.Mountain:
-            return landPrefabs[1];
-        case LandType.Forest:
-            return landPrefabs[2];
-        case LandType.Crops:
-            return landPrefabs[3];
-        case LandType.Castle:
-            return landPrefabs[4];
-        case LandType.GoldMine:
-             return landPrefabs[5];
-        case LandType.Sawmill:
-            return landPrefabs[6];
-        case LandType.Farm:
-            return landPrefabs[7];
-        case LandType.ArmyCamp:
-            return landPrefabs[8];
-        case LandType.PlayerFreeLand:
-            return landPrefabs[9];
-        case LandType.PlayerForest:
-            return landPrefabs[10];
-        case LandType.PlayerCrops:
-            return landPrefabs[11];
-        case LandType.PlayerMountain:
-            return landPrefabs[12];
-        default:
-        return landPrefabs[0]; // Free Land
+        switch (landType)
+        {
+            case LandType.Mountain:
+                return landPrefabs[1];
+            case LandType.Forest:
+                return landPrefabs[2];
+            case LandType.Crops:
+                return landPrefabs[3];
+            case LandType.Castle:
+                return landPrefabs[4];
+            case LandType.GoldMine:
+                return landPrefabs[5];
+            case LandType.Sawmill:
+                return landPrefabs[6];
+            case LandType.Farm:
+                return landPrefabs[7];
+            case LandType.ArmyCamp:
+                return landPrefabs[8];
+            case LandType.PlayerFreeLand:
+                return landPrefabs[9];
+            case LandType.PlayerForest:
+                return landPrefabs[10];
+            case LandType.PlayerCrops:
+                return landPrefabs[11];
+            case LandType.PlayerMountain:
+                return landPrefabs[12];
+            default:
+                return landPrefabs[0]; // Free Land
+        }
     }
-}
 
     void AdjustWeights(int resourceIndex)
     {
@@ -185,27 +181,29 @@ public class HexGridGenerator : MonoBehaviour
                 }
             }
         }
-        
+
     }
 
     public void ChangeTileLandType(HexTile tile, LandType newLandType)
     {
-        Vector2Int gridPos = tile._gridPosition;    
+        Vector2Int gridPos = tile._gridPosition;
 
-        // Destroy the current tile
         Destroy(tile.gameObject);
 
-        // Create a new tile at the same position
         GameObject landPrefab = GetLandTypePrefab(newLandType);
         GameObject newHex = Instantiate(landPrefab, CalculatePosition(gridPos.x, gridPos.y), Quaternion.identity);
         newHex.transform.SetParent(this.transform);
 
-        // Add a HexTile component to the new hex and initialize it
         HexTile newTile = newHex.AddComponent<HexTile>();
         newTile.Initialize(newLandType, gridPos);
 
-        // Update the reference in the grid array
         hexGrid[gridPos.x, gridPos.y] = newTile;
+
+        if (newTile._landType == LandType.GoldMine || newTile._landType == LandType.Sawmill || newTile._landType == LandType.Farm)
+        {
+            ResourceManager.instance.resourceGenerators.Add(newTile);
+            ResourceManager.instance.UpdateResourceProductionRate();
+        }
     }
 
     public void ChangeTileLandTypeToPlayer(HexTile tile)
@@ -229,7 +227,7 @@ public class HexGridGenerator : MonoBehaviour
     }
 
 
-    public List<HexTile> GetCastleNeighbors(HexTile centerTile)
+    public List<HexTile> Get2RingsOfNeighbours(HexTile centerTile)
     {
         List<HexTile> neighbors = new List<HexTile>();
         Vector2Int currentPosition = new Vector2Int();
@@ -285,13 +283,65 @@ public class HexGridGenerator : MonoBehaviour
                 }
             }
         }
-        
+
         return neighbors;
     }
 
-    public void TransformNeighbors(HexTile castleTile)
+    public List<HexTile> GetNeighbours(HexTile centerTile)
     {
-        List<HexTile> castleNeighbours = GetCastleNeighbors(castleTile);
+        List<HexTile> neighbors = new List<HexTile>();
+        Vector2Int currentPosition = new Vector2Int();
+
+        Vector2Int[] evenDirections =
+        {
+            new Vector2Int(0, +1), new Vector2Int(+1, +1), new Vector2Int(+1, 0),
+            new Vector2Int(+1, -1), new Vector2Int(0, -1), new Vector2Int(-1, 0)
+        };
+        Vector2Int[] oddDirections =
+        {
+            new Vector2Int(-1, +1), new Vector2Int(0, +1), new Vector2Int(+1, 0),
+            new Vector2Int(0,-1), new Vector2Int(-1, -1), new Vector2Int(-1, 0),
+        };
+
+        if (centerTile._gridPosition.y % 2 != 0)
+        {
+            foreach (Vector2Int direction in evenDirections)
+            {
+                currentPosition = centerTile._gridPosition;
+                currentPosition += direction;
+                if (currentPosition.x >= 0 && currentPosition.x < width && currentPosition.y >= 0 && currentPosition.y < height)
+                {
+                    HexTile neighbor = hexGrid[currentPosition.x, currentPosition.y];
+                    if (neighbor != null)
+                    {
+                        neighbors.Add(neighbor);
+                    }
+                }
+            }
+        }
+        else
+        {
+            foreach (Vector2Int direction in oddDirections)
+            {
+                currentPosition = centerTile._gridPosition;
+                currentPosition += direction;
+                if (currentPosition.x >= 0 && currentPosition.x < width && currentPosition.y >= 0 && currentPosition.y < height)
+                {
+                    HexTile neighbor = hexGrid[currentPosition.x, currentPosition.y];
+                    if (neighbor != null)
+                    {
+                        neighbors.Add(neighbor);
+                    }
+                }
+            }
+        }
+
+        return neighbors;
+    }
+
+    public void TransformCastleNeighbors(HexTile castleTile)
+    {
+        List<HexTile> castleNeighbours = Get2RingsOfNeighbours(castleTile);
 
         foreach (HexTile neighbour in castleNeighbours)
         {
@@ -299,9 +349,46 @@ public class HexGridGenerator : MonoBehaviour
         }
     }
 
+    public void TransformArmyCampNeighbors(HexTile castleTile)
+    {
+        List<HexTile> neighbours = GetNeighbours(castleTile);
+
+        foreach (HexTile neighbour in neighbours)
+        {
+            ChangeTileLandTypeToPlayer(neighbour);
+        }
+        FillGaps();
+    }
+
+    public void FillGaps()
+    {
+        foreach(HexTile hex in hexGrid)
+        {
+            if(hex._landType == LandType.FreeLand || hex._landType == LandType.Mountain || hex._landType == LandType.Forest || hex._landType == LandType.Crops)
+            {
+                bool isGap = true;
+                List<HexTile> neighbours = GetNeighbours(hex);
+                foreach(HexTile neighbour in neighbours)
+                {
+                    if (neighbour._landType == LandType.FreeLand || neighbour._landType == LandType.Mountain || neighbour._landType == LandType.Forest || neighbour._landType == LandType.Crops)
+                    {
+                        isGap = false;
+                        break;
+                    }
+                }
+                if (isGap)
+                {
+                    ChangeTileLandTypeToPlayer(hex);
+                }
+
+            }
+        }
+    }
+
 }
 
-public enum LandType {
+public enum LandType
+{
     FreeLand,
     Mountain,
     Forest,

@@ -6,12 +6,16 @@ public static class Data
 {
     public class Player
     {
-        public int gold = 0;
-        public int gems = 0;
-        public int wood = 0;
-        public int stone = 0;
-        public int food = 0;
+        public int gold = 100;
+        public int gems = 10;
+        public int wood = 1000;
+        public int stone = 1000;
+        public int food = 500;
         public List<Building> buildings = new List<Building>();
+        public int goldProduction = 0;
+        public int stoneProduction = 0;
+        public int woodProduction = 0;
+        public int foodProduction = 0;
     }
 
     public class Building

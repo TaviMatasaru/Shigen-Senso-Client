@@ -7,7 +7,7 @@ public class ResourceManager : MonoBehaviour
     public static ResourceManager instance { get; private set; }
 
     public Data.Player _player = new Data.Player();
-    public List<HexTile> resourceGenerators = new List<HexTile>();
+    public List<Tile> resourceGenerators = new List<Tile>();
 
     public int _goldMineCost = 300;
     public int _farmCost = 300;
@@ -33,52 +33,52 @@ public class ResourceManager : MonoBehaviour
 
     private void Update()
     {
-        if(_updateTimer > 1)
-        {
-            _updateTimer = 0;
-            UpdateResources();
+        //if(_updateTimer > 1)
+        //{
+        //    _updateTimer = 0;
+        //    UpdateResources();
 
            
-        }
-        else
-        {
-            _updateTimer += Time.deltaTime;
-        }
+        //}
+        //else
+        //{
+        //    _updateTimer += Time.deltaTime;
+        //}
         
     }
 
 
     public void UpdateResourceProductionRate()
     {
-        foreach (HexTile resourceGenerator in resourceGenerators)
+        foreach (Tile resourceGenerator in resourceGenerators)
         {
-            List<HexTile> neighbours = HexGridGenerator.Instance.GetNeighbours(resourceGenerator);
+            List<Tile> neighbours = HexGridManager.Instance.GetNeighbours(resourceGenerator);
 
-            if (resourceGenerator._landType == LandType.GoldMine)
+            if (resourceGenerator.tile.hexType == (int)Player.HexType.PLAYER_STONE_MINE)
             {
-                foreach (HexTile neighbour in neighbours)
+                foreach (Tile neighbour in neighbours)
                 {
-                    if (neighbour._landType == LandType.PlayerMountain)
+                    if (resourceGenerator.tile.hexType == (int)Player.HexType.PLAYER_MOUNTAIN)
                     {
                         _player.stoneProduction += _goldMineProductionRate;
                     }
                 }
             }
-            if (resourceGenerator._landType == LandType.Sawmill)
+            if (resourceGenerator.tile.hexType == (int)Player.HexType.PLAYER_SAWMILL)
             {
-                foreach (HexTile neighbour in neighbours)
+                foreach (Tile neighbour in neighbours)
                 {
-                    if (neighbour._landType == LandType.PlayerForest)
+                    if (resourceGenerator.tile.hexType == (int)Player.HexType.PLAYER_FOREST)
                     {
                         _player.woodProduction += _sawmillProductionRate;
                     }
                 }
             }
-            if (resourceGenerator._landType == LandType.Farm)
+            if (resourceGenerator.tile.hexType == (int)Player.HexType.PLAYER_FARM)
             {
-                foreach (HexTile neighbour in neighbours)
+                foreach (Tile neighbour in neighbours)
                 {
-                    if (neighbour._landType == LandType.PlayerCrops)
+                    if (resourceGenerator.tile.hexType == (int)Player.HexType.PLAYER_CROPS)
                     {
                         _player.foodProduction += _farmProductionRate;
                     }

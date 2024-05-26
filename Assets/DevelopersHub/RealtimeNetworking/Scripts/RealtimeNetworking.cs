@@ -91,6 +91,10 @@ namespace DevelopersHub.RealtimeNetworking.Client
             {
                 OnPacketReceived.Invoke(packet);
             }
+            else
+            {
+                Debug.Log("Am primit un pachet null");
+            }
         }
 
         public void _ReceiveNull(int id)

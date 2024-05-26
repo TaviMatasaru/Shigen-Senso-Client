@@ -1,0 +1,4 @@
+repository "Shigen Senso@Tavilian@cloud"
+  path "/"
+    br "/main"
+    co "/main"

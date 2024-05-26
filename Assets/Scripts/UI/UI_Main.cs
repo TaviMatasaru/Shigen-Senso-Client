@@ -3,18 +3,23 @@ using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
+using DevelopersHub.RealtimeNetworking.Client;
 
 public class UI_Main : MonoBehaviour
 {
     [SerializeField] public GameObject _elements = null;
     [SerializeField] public GameObject _menuElements = null;
+
     [SerializeField] public TextMeshProUGUI _goldText = null;
     [SerializeField] public TextMeshProUGUI _gemsText = null;
     [SerializeField] public TextMeshProUGUI _woodText = null;
     [SerializeField] public TextMeshProUGUI _stoneText = null;
     [SerializeField] public TextMeshProUGUI _foodText = null;
+
     [SerializeField] private Button _shopButton = null;
     [SerializeField] private Button _newGameButton = null;
+
+    [SerializeField] public BuildGrid _grid = null;
     [SerializeField] public Building[] _buildingsPrefabs = null;
 
     private static UI_Main _instance = null; public static UI_Main instance { get { return _instance; } }
@@ -44,11 +49,14 @@ public class UI_Main : MonoBehaviour
 
     public void NewGameButtonClicked()
     {
-        //TODO : send NewGame request to server and process the answer
-        HexGridGenerator.Instance.GenerateGrid();
+        Packet packetToSend = new Packet();
+        packetToSend.Write((int)Player.RequestsID.NEW_GRID);
+        packetToSend.Write(SystemInfo.deviceUniqueIdentifier);
+        Sender.TCP_Send(packetToSend);
+
+
         _menuElements.SetActive(false);
-        _elements.SetActive(true);
-        
+        _elements.SetActive(true); 
     }
 
     public void SetStatus(bool status)

@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using DevelopersHub.RealtimeNetworking.Client;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -9,7 +10,7 @@ public class UI_BuildingOptions : MonoBehaviour
     [SerializeField] public GameObject _castleElement = null;
     [SerializeField] public GameObject _armyCampElement = null;
     [SerializeField] public Button _buildCastle = null;
-    [SerializeField] public Button _buildGoldMine = null;
+    [SerializeField] public Button _buildStonedMine = null;
     [SerializeField] public Button _buildSawmill = null;
     [SerializeField] public Button _buildFarm = null;
     [SerializeField] public Button _builArmyCamp = null;
@@ -29,7 +30,7 @@ public class UI_BuildingOptions : MonoBehaviour
     private void Start()
     {
         _buildCastle.onClick.AddListener(BuildCastleClicked);
-        _buildGoldMine.onClick.AddListener(BuildGoldMineClicked);
+        _buildStonedMine.onClick.AddListener(BuildStoneMineClicked);
         _buildSawmill.onClick.AddListener(BuildSawmillClicked);
         _buildFarm.onClick.AddListener(BuildFarmClicked);
         _builArmyCamp.onClick.AddListener(BuildArmyCampClicked);
@@ -38,87 +39,102 @@ public class UI_BuildingOptions : MonoBehaviour
     public void BuildCastleClicked()
     {
 
-        HexTile selectedTile = HexGridGenerator.Instance.GetCurrentlySelectedTile();
+        Tile selectedTile = HexGridManager.Instance.GetCurrentlySelectedTile();
         if (selectedTile != null)
         {
-            if (HexGridGenerator.Instance._isCastleBuild == false)
+            if (HexGridManager.Instance._isCastleBuild == false)
             {
-                HexGridGenerator.Instance.ChangeTileLandType(selectedTile, LandType.Castle);
-                HexGridGenerator.Instance._isCastleBuild = true;
-                HexGridGenerator.Instance.TransformCastleNeighbors(selectedTile);
+                Packet packetToSend = new Packet();
+                packetToSend.Write((int)Player.RequestsID.BUILD_CASTLE);
+                packetToSend.Write(SystemInfo.deviceUniqueIdentifier);
+                packetToSend.Write(selectedTile.tile.x);
+                packetToSend.Write(selectedTile.tile.y);
+                Sender.TCP_Send(packetToSend);              
+                
                 _castleElement.SetActive(false);
-            }
-            else
-            {
-                Debug.Log("Only one castle allowed");
-            }
+            }           
         }
     }
 
-    public void BuildGoldMineClicked()
+    public void BuildStoneMineClicked()
     {
 
-        HexTile selectedTile = HexGridGenerator.Instance.GetCurrentlySelectedTile();
-        if (selectedTile != null && ResourceManager.instance.CanBuyGoldMine())
+        Tile selectedTile = HexGridManager.Instance.GetCurrentlySelectedTile();
+        if (selectedTile != null)
         {
-            ResourceManager.instance.BuyGoldMine();
-            HexGridGenerator.Instance.ChangeTileLandType(selectedTile, LandType.GoldMine);           
+            Packet packetToSend = new Packet();
+            packetToSend.Write((int)Player.RequestsID.BUILD_STONE_MINE);
+            packetToSend.Write(SystemInfo.deviceUniqueIdentifier);
+            packetToSend.Write(selectedTile.tile.x);
+            packetToSend.Write(selectedTile.tile.y);
+            Sender.TCP_Send(packetToSend);
+
+            //ResourceManager.instance.BuyGoldMine();
+            //HexGridManager.Instance.ChangeTileHexType(selectedTile, Player.HexType.PLAYER_STONE_MINE);           
+
             _buildingElements.SetActive(false);
             
-        }
-        else
-        {
-            Debug.LogError("No Resources to Build!");
-        }
+        }        
     }
 
     public void BuildSawmillClicked()
     {
 
-        HexTile selectedTile = HexGridGenerator.Instance.GetCurrentlySelectedTile();
-        if (selectedTile != null && ResourceManager.instance.CanBuySawmill())
+        Tile selectedTile = HexGridManager.Instance.GetCurrentlySelectedTile();
+        if (selectedTile != null)
         {
-            ResourceManager.instance.BuySawmill();
-            HexGridGenerator.Instance.ChangeTileLandType(selectedTile, LandType.Sawmill);   
+            Packet packetToSend = new Packet();
+            packetToSend.Write((int)Player.RequestsID.BUILD_SAWMILL);
+            packetToSend.Write(SystemInfo.deviceUniqueIdentifier);
+            packetToSend.Write(selectedTile.tile.x);
+            packetToSend.Write(selectedTile.tile.y);
+            Sender.TCP_Send(packetToSend);
+
+            //ResourceManager.instance.BuySawmill();
+            //HexGridManager.Instance.ChangeTileHexType(selectedTile, Player.HexType.PLAYER_SAWMILL);
+
             _buildingElements.SetActive(false);
-        }
-        else
-        {
-            Debug.LogError("No Resources to Build!");
-        }
+        }        
     }
 
     public void BuildFarmClicked()
     {
 
-        HexTile selectedTile = HexGridGenerator.Instance.GetCurrentlySelectedTile();
-        if (selectedTile != null && ResourceManager.instance.CanBuyFarm())
+        Tile selectedTile = HexGridManager.Instance.GetCurrentlySelectedTile();
+        if (selectedTile != null)
         {
-            ResourceManager.instance.BuyFarm();
-            HexGridGenerator.Instance.ChangeTileLandType(selectedTile, LandType.Farm);            
+            Packet packetToSend = new Packet();
+            packetToSend.Write((int)Player.RequestsID.BUILD_FARM);
+            packetToSend.Write(SystemInfo.deviceUniqueIdentifier);
+            packetToSend.Write(selectedTile.tile.x);
+            packetToSend.Write(selectedTile.tile.y);
+            Sender.TCP_Send(packetToSend);
+
+            //ResourceManager.instance.BuyFarm();
+            //HexGridManager.Instance.ChangeTileHexType(selectedTile, Player.HexType.PLAYER_FARM);            
             _buildingElements.SetActive(false);
-        }
-        else
-        {
-            Debug.LogError("No Resources to Build!");
-        }
+        }        
     }
 
     public void BuildArmyCampClicked()
     {
 
-        HexTile selectedTile = HexGridGenerator.Instance.GetCurrentlySelectedTile();
-        if (selectedTile != null && ResourceManager.instance.CanBuyArmyCamp())
+        Tile selectedTile = HexGridManager.Instance.GetCurrentlySelectedTile();
+        if (selectedTile != null)
         {
-            ResourceManager.instance.BuyArmyCamp();
-            HexGridGenerator.Instance.ChangeTileLandType(selectedTile, LandType.ArmyCamp);             
-                HexGridGenerator.Instance.TransformArmyCampNeighbors(selectedTile);
-                _armyCampElement.SetActive(false);
-        }
-        else
-        {
-            Debug.LogError("No Resources to Build!");
-        }
+            Packet packetToSend = new Packet();
+            packetToSend.Write((int)Player.RequestsID.BUILD_ARMY_CAMP);
+            packetToSend.Write(SystemInfo.deviceUniqueIdentifier);
+            packetToSend.Write(selectedTile.tile.x);
+            packetToSend.Write(selectedTile.tile.y);
+            Sender.TCP_Send(packetToSend);
+
+
+            //ResourceManager.instance.BuyArmyCamp();
+            //HexGridManager.Instance.ChangeTileHexType(selectedTile, Player.HexType.PLAYER_ARMY_CAMP);             
+            //    HexGridManager.Instance.TransformArmyCampNeighbors(selectedTile);
+            _armyCampElement.SetActive(false);
+        }        
     }
 
     public void SetStatus(bool status)

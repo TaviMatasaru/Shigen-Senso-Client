@@ -5,6 +5,8 @@ using UnityEngine.EventSystems;
 
 public class CameraController : MonoBehaviour
 {
+    private static CameraController _instance = null; public static CameraController instance { get { return _instance; } }
+
     [SerializeField] private Camera _camera = null;
     [SerializeField] private float _moveSpeed = 50;
     [SerializeField] private float _moveSmooth = 3;
@@ -45,7 +47,7 @@ public class CameraController : MonoBehaviour
 
     private void Start()
     {
-        Initialize(new Vector3(10f, 10f, -1f), 11, 11, 8, 9, 45, 15, 3, 10);
+        Initialize(new Vector3(10f, 10f, -1f), 15, 15, 12, 11, 45, 20, 3, 10);
     }
 
     public void Initialize(Vector3 center, float right, float left, float up, float down, float angle, float zoom, float zoomMin, float zoomMax)
@@ -222,12 +224,14 @@ public class CameraController : MonoBehaviour
 
         if(h > (_up + _down) / 2f)
         {
-            _zoom = (_up + _down) / 2f;
+            float n = (_up + _down) / 2f;
+            _zoom = n * Mathf.Sin(_angle * Mathf.Deg2Rad);
         }
 
         if (w > (_right + _left) / 2f)
         {
-            _zoom = (_right + _left) / 2f / _camera.aspect;
+            float n = (_right + _left) / 2f;
+            _zoom = n * Mathf.Sin(_angle * Mathf.Deg2Rad) / _camera.aspect;
         }
 
         h = PlaneOrtographicSize();
@@ -259,7 +263,7 @@ public class CameraController : MonoBehaviour
     private float PlaneOrtographicSize()
     {
         float h = _zoom * 2f;
-        return h / Mathf.Sign(_angle * Mathf.Deg2Rad) / 2f;
+        return h / Mathf.Sin(_angle * Mathf.Deg2Rad) / 2f;
     }
 
     private Vector3 CameraScreenPositionToWorldPosition(Vector2 position)

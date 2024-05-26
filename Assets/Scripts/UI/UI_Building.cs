@@ -26,12 +26,7 @@ public class UI_Building : MonoBehaviour
     }
 
     public void ConfirmBuild()
-    {
-        Packet packet = new Packet();
-        packet.Write((int)Player.RequestsID.BUILD);
-        packet.Write(SystemInfo.deviceUniqueIdentifier);
-        packet.Write(_prefabIndex);
-        Sender.TCP_Send(packet);
+    {    
     }
 
 }

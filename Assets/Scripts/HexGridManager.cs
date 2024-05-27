@@ -32,7 +32,7 @@ public class HexGridManager : MonoBehaviour
             return;
         }
         Instance = this;
-        DontDestroyOnLoad(this.gameObject); // Optional: Makes it persist across scenes
+        DontDestroyOnLoad(this.gameObject); 
     }
 
 
@@ -305,20 +305,3 @@ public class HexGridManager : MonoBehaviour
     }
 
 }
-
-//public enum hexPrefabs
-//{
-//    FreeLand,
-//    Mountain,
-//    Forest,
-//    Crops,
-//    Castle,
-//    GoldMine,
-//    Sawmill,
-//    Farm,
-//    ArmyCamp,
-//    PlayerFreeLand,
-//    PlayerForest,
-//    PlayerCrops,
-//    PlayerMountain
-//}

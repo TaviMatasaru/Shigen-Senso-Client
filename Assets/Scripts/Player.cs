@@ -36,10 +36,39 @@ public class Player : MonoBehaviour
         PLAYER_ARMY_CAMP = 12
     }
 
+    bool connected = false;
+    private float timer;
+
     public void Start()
     {
         RealtimeNetworking.OnPacketReceived += ReceivedPacket;
         ConnectToServer();
+    }
+
+    public void Update()
+    {
+        if (connected)
+        {
+            if(timer >= 1)
+            {
+                timer = 0;
+
+                Packet SyncGridPacket = new Packet();
+                SyncGridPacket.Write((int)RequestsID.SYNC_GRID);
+                SyncGridPacket.Write(SystemInfo.deviceUniqueIdentifier);
+                Sender.TCP_Send(SyncGridPacket);
+
+                Packet SyncPlayerPacket = new Packet();
+                SyncPlayerPacket.Write((int)RequestsID.SYNC);
+                SyncPlayerPacket.Write(SystemInfo.deviceUniqueIdentifier);
+                Sender.TCP_Send(SyncPlayerPacket);
+            }
+            else
+            {
+                timer += Time.deltaTime;
+            }
+        }
+        
     }
 
     private void ConnectToServer()
@@ -79,6 +108,8 @@ public class Player : MonoBehaviour
                 packetToSend.Write((int)RequestsID.SYNC);
                 packetToSend.Write(SystemInfo.deviceUniqueIdentifier);
                 Sender.TCP_Send(packetToSend);
+                connected = true;
+                timer = 0;
                 break;
 
             case RequestsID.SYNC:               
@@ -211,6 +242,7 @@ public class Player : MonoBehaviour
                         break;
 
                     case 3:
+                        Debug.Log("Am primit raspunul 3 de la BUILD_ARMY_CAMP");
                         Packet SyncGridPacket = new Packet();
                         SyncGridPacket.Write((int)RequestsID.SYNC_GRID);
                         SyncGridPacket.Write(SystemInfo.deviceUniqueIdentifier);
@@ -220,7 +252,6 @@ public class Player : MonoBehaviour
                         SyncPlayerPacket.Write((int)RequestsID.SYNC);
                         SyncPlayerPacket.Write(SystemInfo.deviceUniqueIdentifier);
                         Sender.TCP_Send(SyncPlayerPacket);
-
                         break;
                 }
                 break;

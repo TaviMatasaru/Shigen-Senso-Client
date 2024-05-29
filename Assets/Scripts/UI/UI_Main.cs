@@ -19,9 +19,6 @@ public class UI_Main : MonoBehaviour
     [SerializeField] private Button _shopButton = null;
     [SerializeField] private Button _newGameButton = null;
 
-    [SerializeField] public BuildGrid _grid = null;
-    [SerializeField] public Building[] _buildingsPrefabs = null;
-
     private static UI_Main _instance = null; public static UI_Main instance { get { return _instance; } }
 
     private bool _active = true; public bool isActive { get { return _active; } }
@@ -51,7 +48,6 @@ public class UI_Main : MonoBehaviour
     {
         Packet packetToSend = new Packet();
         packetToSend.Write((int)Player.RequestsID.NEW_GRID);
-        packetToSend.Write(SystemInfo.deviceUniqueIdentifier);
         Sender.TCP_Send(packetToSend);
 
 

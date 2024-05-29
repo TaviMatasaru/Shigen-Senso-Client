@@ -1,28 +1,25 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class HexGridManager : MonoBehaviour
 {
 
-    public static HexGridManager Instance { get; private set; } // Singleton instance
+    public static HexGridManager Instance { get; private set; }
 
-    public GameObject[] hexPrefabs; // Array of prefabs for the lands
+    public GameObject[] hexPrefabs;
     public int width = 20;
     public int height = 20;
     public float hexWidth = 1.18f;
     public float hexHeight = 1.18f;
-    //private HexTile[,] hexGrid;
     private Tile currentlySelectedTile;
     public bool _isCastleBuild = false;
+    public Tile _castleTile;
 
-    public Data.HexGrid Grid;
     public Tile[,] hexGrid;
-
-    // Weights for each type of land
-    private int[] dynamicWeights = { 70, 10, 10, 10 }; // Corresponding to free land, mountains, forests, crops
-
+    public PathNode[,] pathGrid;
 
     private void Awake()
     {
@@ -32,18 +29,21 @@ public class HexGridManager : MonoBehaviour
             return;
         }
         Instance = this;
-        DontDestroyOnLoad(this.gameObject); 
+        DontDestroyOnLoad(this.gameObject);   
     }
 
 
     public void GenerateHexGrid(Data.HexGrid grid)
     {
         hexGrid = new Tile[grid.rows, grid.columns];
-        foreach(Data.HexTile tile in grid.hexTiles)
+        pathGrid = new PathNode[grid.rows, grid.columns];
+
+        foreach (Data.HexTile tile in grid.hexTiles)
         {
             GameObject hexPrefab = hexPrefabs[tile.hexType];
             int x_pos = tile.x;
             int y_pos = tile.y;
+
 
             GameObject hex = Instantiate(hexPrefab, CalculatePosition(x_pos, y_pos), Quaternion.identity);
             hex.transform.SetParent(this.transform);
@@ -51,7 +51,19 @@ public class HexGridManager : MonoBehaviour
             Tile hexTile = hex.AddComponent<Tile>();
             hexTile.Initialize(tile);
 
+            if(hexTile.tile.hexType == (int)Player.HexType.PLAYER_CASTLE)
+            {
+                _castleTile = hexTile;
+            }
+
             hexGrid[x_pos, y_pos] = hexTile;
+
+            if (hexTile.tile.hexType == (int)Player.HexType.PLAYER_CASTLE)
+            {
+                _castleTile = hexGrid[x_pos, y_pos];
+            }
+
+            pathGrid[tile.x, tile.y] = new PathNode(hexTile);
         }
     }
 
@@ -67,6 +79,8 @@ public class HexGridManager : MonoBehaviour
             }
         }
     }
+
+     
 
     public void SelectTile(Tile tile)
     {
@@ -89,13 +103,17 @@ public class HexGridManager : MonoBehaviour
         return currentlySelectedTile;
     }
 
-    Vector3 CalculatePosition(int x, int y)
+
+
+    public Vector3 CalculatePosition(int x, int y)
     {
         float horizontalSpacing = hexWidth * Mathf.Sqrt(3) / 2;
         float xPos = x * horizontalSpacing + (y % 2 == 1 ? horizontalSpacing / 2 : 0);
         float yPos = y * hexHeight * 0.75f;
         return new Vector3(xPos, 0, yPos);
     }
+
+
 
     public void ChangeTileHexType(Tile hexTile, Player.HexType hexType)
     {
@@ -114,11 +132,11 @@ public class HexGridManager : MonoBehaviour
 
         hexGrid[x_pos, y_pos] = newTile;
 
-        if (newTile.tile.hexType == (int)Player.HexType.PLAYER_STONE_MINE || newTile.tile.hexType == (int)Player.HexType.PLAYER_SAWMILL || newTile.tile.hexType == (int)Player.HexType.PLAYER_FARM)
-        {
-            ResourceManager.instance.resourceGenerators.Add(newTile);
-            ResourceManager.instance.UpdateResourceProductionRate();
-        }
+        //if (newTile.tile.hexType == (int)Player.HexType.PLAYER_STONE_MINE || newTile.tile.hexType == (int)Player.HexType.PLAYER_SAWMILL || newTile.tile.hexType == (int)Player.HexType.PLAYER_FARM)
+        //{
+        //    ResourceManager.instance.resourceGenerators.Add(newTile);
+        //    ResourceManager.instance.UpdateResourceProductionRate();
+        //}
     }
 
     public void ChangeTileLandTypeToPlayer(Tile hexTile)
@@ -140,6 +158,7 @@ public class HexGridManager : MonoBehaviour
         }
 
     }
+
 
 
     public List<Tile> Get2RingsOfNeighbours(Tile centerHexTile)
@@ -258,26 +277,6 @@ public class HexGridManager : MonoBehaviour
         return neighbors;
     }
 
-    public void TransformCastleNeighbors(Tile castleTile)
-    {
-        List<Tile> castleNeighbours = Get2RingsOfNeighbours(castleTile);
-
-        foreach (Tile neighbour in castleNeighbours)
-        {
-            ChangeTileLandTypeToPlayer(neighbour);
-        }
-    }
-
-    public void TransformArmyCampNeighbors(Tile castleTile)
-    {
-        List<Tile> neighbours = GetNeighbours(castleTile);
-
-        foreach (Tile neighbour in neighbours)
-        {
-            ChangeTileLandTypeToPlayer(neighbour);
-        }
-        FillGaps();
-    }
 
     public void FillGaps()
     {
@@ -301,6 +300,120 @@ public class HexGridManager : MonoBehaviour
                 }
 
             }
+        }
+    }
+
+
+
+    public List<Tile> FindPath(Tile startTile, Tile targetTile)
+    {
+        PathNode startNode = pathGrid[startTile.tile.x, startTile.tile.y];
+        PathNode targetNode = pathGrid[targetTile.tile.x, targetTile.tile.y];
+
+        List<PathNode> openSet = new List<PathNode>();
+        HashSet<PathNode> closedSet = new HashSet<PathNode>();
+        openSet.Add(startNode);
+
+        while (openSet.Count > 0)
+        {
+            PathNode currentNode = openSet[0];
+            for (int i = 1; i < openSet.Count; i++)
+            {
+                if (openSet[i].FCost < currentNode.FCost || (openSet[i].FCost == currentNode.FCost && openSet[i].hCost < currentNode.hCost))
+                {
+                    currentNode = openSet[i];
+                }
+            }
+
+            openSet.Remove(currentNode);
+            closedSet.Add(currentNode);
+
+            if (currentNode == targetNode)
+            {
+                return RetracePath(startNode, targetNode);
+            }
+
+            foreach (PathNode neighbor in GetPathNeighbors(currentNode))
+            {
+                if (!neighbor.IsWalkable() || closedSet.Contains(neighbor))
+                {
+                    continue;
+                }
+
+                int newCostToNeighbor = currentNode.gCost + GetDistance(currentNode, neighbor);
+                if (newCostToNeighbor < neighbor.gCost || !openSet.Contains(neighbor))
+                {
+                    neighbor.gCost = newCostToNeighbor;
+                    neighbor.hCost = GetDistance(neighbor, targetNode);
+                    neighbor.cameFromNode = currentNode;
+
+                    if (!openSet.Contains(neighbor))
+                    {
+                        openSet.Add(neighbor);
+                    }
+                }
+            }
+        }
+
+        return new List<Tile>(); // Return an empty path if no path is found
+    }
+
+    private List<PathNode> GetPathNeighbors(PathNode node)
+    {
+        List<PathNode> neighbors = new List<PathNode>();
+        int x = node.tile.tile.x;
+        int y = node.tile.tile.y;
+        Vector2Int[] directions = y % 2 != 0 ? new Vector2Int[]
+        {
+        new Vector2Int(0, +1), new Vector2Int(+1, +1), new Vector2Int(+1, 0),
+        new Vector2Int(+1, -1), new Vector2Int(0, -1), new Vector2Int(-1, 0)
+        } :
+        new Vector2Int[]
+        {
+        new Vector2Int(-1, +1), new Vector2Int(0, +1), new Vector2Int(+1, 0),
+        new Vector2Int(0,-1), new Vector2Int(-1, -1), new Vector2Int(-1, 0),
+        };
+
+        foreach (var direction in directions)
+        {
+            int nx = x + direction.x;
+            int ny = y + direction.y;
+            if (nx >= 0 && nx < width && ny >= 0 && ny < height)
+            {
+                neighbors.Add(pathGrid[nx, ny]);
+            }
+        }
+        return neighbors;
+    }
+
+    private int GetDistance(PathNode nodeA, PathNode nodeB)
+    {
+        int dx = Math.Abs(nodeA.tile.tile.x - nodeB.tile.tile.x);
+        int dy = Math.Abs(nodeA.tile.tile.y - nodeB.tile.tile.y);
+        return dy + Math.Max(0, (dx - dy) / 2);
+    }
+
+    private List<Tile> RetracePath(PathNode startNode, PathNode endNode)
+    {
+        List<Tile> path = new List<Tile>();
+        PathNode currentNode = endNode;
+
+        while (currentNode != startNode)
+        {
+            path.Add(currentNode.tile);
+            currentNode = currentNode.cameFromNode;
+        }
+        path.Reverse();
+        return path;
+    }
+
+
+
+    public void DrawPath(List<Tile> path)
+    {
+        foreach(Tile tile in path)
+        {
+            ChangeTileHexType(tile, Player.HexType.PATH_TILE);
         }
     }
 

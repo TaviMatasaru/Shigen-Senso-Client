@@ -43,7 +43,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7834503372520324319}
-  - component: {fileID: -2313336299978450919}
   m_Layer: 0
   m_Name: PlayerStoneMine
   m_TagString: Untagged
@@ -68,25 +67,6 @@ Transform:
   - {fileID: 9103433215819018618}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &-2313336299978450919
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6915894164283032013}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7dccef5d4e9c24065b6605749110dee8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  id: stonemine
-  _levels:
-  - level: 1
-    icon: {fileID: 0}
-    mesh: {fileID: 1229468335105538073}
-  _row: 0
-  _column: 0
 --- !u!1001 &2748393047709185830
 PrefabInstance:
   m_ObjectHideFlags: 0

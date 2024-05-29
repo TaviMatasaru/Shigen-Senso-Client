@@ -33,7 +33,6 @@ public class Tile : MonoBehaviour
         transform.localScale = _originalScale * 1.3f;
         transform.position = new Vector3(_originalPosition.x, _originalPosition.y + 0.15f, _originalPosition.z);
 
-        Debug.Log("HexType: " + (Player.HexType)this.tile.hexType);
 
         if(this.tile.hexType == (int)Player.HexType.FREE_LAND)
         {
@@ -63,6 +62,7 @@ public class Tile : MonoBehaviour
                 else
                 {
                     UI_BuildingOptions.instance._armyCampElement.SetActive(false);
+                    UI_BuildingOptions.instance._pathFindingTestElement.SetActive(true);
                 }
             }
         }
@@ -70,6 +70,10 @@ public class Tile : MonoBehaviour
         {            
             UI_BuildingOptions.instance._buildingElements.SetActive(true);
             UI_BuildingOptions.instance._armyCampElement.SetActive(false);
+        }
+        else if(this.tile.hexType == (int)Player.HexType.PLAYER_ARMY_CAMP)
+        {
+            UI_BuildingOptions.instance._openArmyCampElement.SetActive(true);
         }
         else
         {

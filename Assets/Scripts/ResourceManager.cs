@@ -18,7 +18,7 @@ public class ResourceManager : MonoBehaviour
     public int _farmProductionRate = 10;
     public int _sawmillProductionRate = 10;
 
-    private float _updateTimer = 0;
+    //private float _updateTimer = 0;
 
     private void Awake()
     {

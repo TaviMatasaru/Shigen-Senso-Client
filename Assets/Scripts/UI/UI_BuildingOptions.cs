@@ -9,13 +9,26 @@ public class UI_BuildingOptions : MonoBehaviour
     [SerializeField] public GameObject _buildingElements = null;
     [SerializeField] public GameObject _castleElement = null;
     [SerializeField] public GameObject _armyCampElement = null;
+    [SerializeField] public GameObject _openArmyCampElement = null;
+
+    [SerializeField] public GameObject _pathFindingTestElement = null;
+
     [SerializeField] public Button _buildCastle = null;
     [SerializeField] public Button _buildStonedMine = null;
     [SerializeField] public Button _buildSawmill = null;
     [SerializeField] public Button _buildFarm = null;
-    [SerializeField] public Button _builArmyCamp = null;
 
-    
+    [SerializeField] public Button _builArmyCamp = null;
+    [SerializeField] public Button _openArmyCamp = null;
+
+    [SerializeField] public Button _trainBarbarianButton = null;
+    [SerializeField] public Button _trainArcherButton = null;
+
+    [SerializeField] public Button _findPath = null;
+
+
+
+
 
     private static UI_BuildingOptions _instance = null; public static UI_BuildingOptions instance { get { return _instance; } }
 
@@ -25,6 +38,9 @@ public class UI_BuildingOptions : MonoBehaviour
         _buildingElements.SetActive(false);
         _castleElement.SetActive(false);
         _armyCampElement.SetActive(false);
+        _openArmyCampElement.SetActive(false);
+
+        _pathFindingTestElement.SetActive(false);
     }
 
     private void Start()
@@ -34,6 +50,12 @@ public class UI_BuildingOptions : MonoBehaviour
         _buildSawmill.onClick.AddListener(BuildSawmillClicked);
         _buildFarm.onClick.AddListener(BuildFarmClicked);
         _builArmyCamp.onClick.AddListener(BuildArmyCampClicked);
+        _openArmyCamp.onClick.AddListener(OpenArmyCampClicked);
+
+        _trainBarbarianButton.onClick.AddListener(TrainBarbarianClicked);
+        _trainArcherButton.onClick.AddListener(TrainArcherClicked);
+
+        _findPath.onClick.AddListener(FindPathClicked);
     }
 
     public void BuildCastleClicked()
@@ -46,7 +68,6 @@ public class UI_BuildingOptions : MonoBehaviour
             {
                 Packet packetToSend = new Packet();
                 packetToSend.Write((int)Player.RequestsID.BUILD_CASTLE);
-                packetToSend.Write(SystemInfo.deviceUniqueIdentifier);
                 packetToSend.Write(selectedTile.tile.x);
                 packetToSend.Write(selectedTile.tile.y);
                 Sender.TCP_Send(packetToSend);              
@@ -64,7 +85,6 @@ public class UI_BuildingOptions : MonoBehaviour
         {
             Packet packetToSend = new Packet();
             packetToSend.Write((int)Player.RequestsID.BUILD_STONE_MINE);
-            packetToSend.Write(SystemInfo.deviceUniqueIdentifier);
             packetToSend.Write(selectedTile.tile.x);
             packetToSend.Write(selectedTile.tile.y);
             Sender.TCP_Send(packetToSend);
@@ -85,7 +105,6 @@ public class UI_BuildingOptions : MonoBehaviour
         {
             Packet packetToSend = new Packet();
             packetToSend.Write((int)Player.RequestsID.BUILD_SAWMILL);
-            packetToSend.Write(SystemInfo.deviceUniqueIdentifier);
             packetToSend.Write(selectedTile.tile.x);
             packetToSend.Write(selectedTile.tile.y);
             Sender.TCP_Send(packetToSend);
@@ -105,7 +124,6 @@ public class UI_BuildingOptions : MonoBehaviour
         {
             Packet packetToSend = new Packet();
             packetToSend.Write((int)Player.RequestsID.BUILD_FARM);
-            packetToSend.Write(SystemInfo.deviceUniqueIdentifier);
             packetToSend.Write(selectedTile.tile.x);
             packetToSend.Write(selectedTile.tile.y);
             Sender.TCP_Send(packetToSend);
@@ -124,7 +142,6 @@ public class UI_BuildingOptions : MonoBehaviour
         {
             Packet packetToSend = new Packet();
             packetToSend.Write((int)Player.RequestsID.BUILD_ARMY_CAMP);
-            packetToSend.Write(SystemInfo.deviceUniqueIdentifier);
             packetToSend.Write(selectedTile.tile.x);
             packetToSend.Write(selectedTile.tile.y);
             Sender.TCP_Send(packetToSend);
@@ -137,10 +154,62 @@ public class UI_BuildingOptions : MonoBehaviour
         }        
     }
 
+
+
+
+    public void TrainBarbarianClicked()
+    {
+        Tile armyCampTile = HexGridManager.Instance.GetCurrentlySelectedTile();
+        Packet packet = new Packet();
+
+        packet.Write((int)Player.RequestsID.TRAIN);
+        packet.Write(Data.UnitID.barbarian.ToString());
+        packet.Write(armyCampTile.tile.x);
+        packet.Write(armyCampTile.tile.y);
+
+        Sender.TCP_Send(packet);
+    }
+
+    public void TrainArcherClicked()
+    {
+        Tile armyCampTile = HexGridManager.Instance.GetCurrentlySelectedTile();
+        Packet packet = new Packet();
+
+        packet.Write((int)Player.RequestsID.TRAIN);
+        packet.Write(Data.UnitID.archer.ToString());
+        packet.Write(armyCampTile.tile.x);
+        packet.Write(armyCampTile.tile.y);
+
+        Sender.TCP_Send(packet);
+    }
+
+
+    public void FindPathClicked()
+    {
+        Tile selectedTile = HexGridManager.Instance.GetCurrentlySelectedTile();
+        Tile startTile = HexGridManager.Instance.hexGrid[0, 0];
+
+        UnitManager movementManager = FindObjectOfType<UnitManager>(); // Find the movement manager in the scene
+        movementManager.startTile = startTile;
+        movementManager.destinationTile = selectedTile;
+        movementManager.SpawnUnitAt(startTile);
+
+        _pathFindingTestElement.SetActive(false);
+    }
+
+
+    public void OpenArmyCampClicked()
+    {
+        _openArmyCampElement.SetActive(false);
+        UI_Train.instance.SetStatus(true);
+    }
+
+
     public void SetStatus(bool status)
     {
         _buildingElements.SetActive(status);
         _castleElement.SetActive(status);
         _armyCampElement.SetActive(status);
+        _openArmyCampElement.SetActive(status);
     }
 }

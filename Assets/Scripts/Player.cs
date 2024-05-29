@@ -5,6 +5,10 @@ using DevelopersHub.RealtimeNetworking.Client;
 
 public class Player : MonoBehaviour
 {
+    public Data.Player data = new Data.Player();
+    private static Player _instance = null; public static Player instance { get { return _instance; } }
+
+    public Data.InitializationData initializationData = new Data.InitializationData();
    
     public enum RequestsID
     {
@@ -16,7 +20,9 @@ public class Player : MonoBehaviour
         BUILD_STONE_MINE = 6,
         BUILD_SAWMILL = 7,
         BUILD_FARM = 8,
-        BUILD_ARMY_CAMP = 9
+        BUILD_ARMY_CAMP = 9,
+        TRAIN = 10,
+        CANCEL_TRAIN = 11
     }
 
     public enum HexType
@@ -33,11 +39,14 @@ public class Player : MonoBehaviour
         PLAYER_STONE_MINE = 9,
         PLAYER_SAWMILL = 10,
         PLAYER_FARM = 11,
-        PLAYER_ARMY_CAMP = 12
+        PLAYER_ARMY_CAMP = 12,
+        PATH_TILE = 13
     }
 
     bool connected = false;
     private float timer;
+    private bool updating = false;
+    private float syncTime = 5;
 
     public void Start()
     {
@@ -45,23 +54,31 @@ public class Player : MonoBehaviour
         ConnectToServer();
     }
 
+    public void Awake()
+    {
+        _instance = this;
+    }
+
+
     public void Update()
     {
         if (connected)
         {
             if(timer >= 1)
             {
+                updating = true;
                 timer = 0;
 
-                Packet SyncGridPacket = new Packet();
-                SyncGridPacket.Write((int)RequestsID.SYNC_GRID);
-                SyncGridPacket.Write(SystemInfo.deviceUniqueIdentifier);
-                Sender.TCP_Send(SyncGridPacket);
+                if (HexGridManager.Instance._isCastleBuild)
+                {
+                    Packet SyncGridPacket = new Packet();
+                    SyncGridPacket.Write((int)RequestsID.SYNC_GRID);
+                    Sender.TCP_Send(SyncGridPacket);
 
-                Packet SyncPlayerPacket = new Packet();
-                SyncPlayerPacket.Write((int)RequestsID.SYNC);
-                SyncPlayerPacket.Write(SystemInfo.deviceUniqueIdentifier);
-                Sender.TCP_Send(SyncPlayerPacket);
+                    Packet SyncPlayerPacket = new Packet();
+                    SyncPlayerPacket.Write((int)RequestsID.SYNC);
+                    Sender.TCP_Send(SyncPlayerPacket);
+                }              
             }
             else
             {
@@ -103,12 +120,18 @@ public class Player : MonoBehaviour
         switch ((RequestsID)id)
         {
             case RequestsID.AUTH:
-                long accountID = received_packet.ReadLong();                
+                string authData = received_packet.ReadString();
+                initializationData = Data.Deserialize<Data.InitializationData>(authData);
+
+                              
                 Packet packetToSend = new Packet();
-                packetToSend.Write((int)RequestsID.SYNC);
-                packetToSend.Write(SystemInfo.deviceUniqueIdentifier);
+
+                packetToSend.Write((int)RequestsID.SYNC);           
+
                 Sender.TCP_Send(packetToSend);
+
                 connected = true;
+                updating = true;
                 timer = 0;
                 break;
 
@@ -116,6 +139,7 @@ public class Player : MonoBehaviour
                 string playerData = received_packet.ReadString();
                 Data.Player playerSyncData = Data.Deserialize<Data.Player>(playerData);
                 SyncPlayerData(playerSyncData);
+                updating = false;
                 break;
 
             case RequestsID.NEW_GRID:              
@@ -138,11 +162,12 @@ public class Player : MonoBehaviour
                         Debug.LogError("Only one Castle Allowed!");
                         break;
                     case 1:
+                        // RushSyncRequest();
+
                         Packet SyncGridPacket = new Packet();
                         HexGridManager.Instance._isCastleBuild = true;
                         SyncGridPacket.Write((int)RequestsID.SYNC_GRID);
-                        SyncGridPacket.Write(SystemInfo.deviceUniqueIdentifier);
-                        Sender.TCP_Send(SyncGridPacket);                   
+                        Sender.TCP_Send(SyncGridPacket);
                         break;
                 }
                 break;
@@ -156,15 +181,7 @@ public class Player : MonoBehaviour
                         break;
 
                     case 1:
-                        Packet SyncGridPacket = new Packet();                      
-                        SyncGridPacket.Write((int)RequestsID.SYNC_GRID);
-                        SyncGridPacket.Write(SystemInfo.deviceUniqueIdentifier);
-                        Sender.TCP_Send(SyncGridPacket);
-
-                        Packet SyncPlayerPacket = new Packet();
-                        SyncPlayerPacket.Write((int)RequestsID.SYNC);
-                        SyncPlayerPacket.Write(SystemInfo.deviceUniqueIdentifier);
-                        Sender.TCP_Send(SyncPlayerPacket);
+                        RushSyncRequest();                       
                         break;
 
                     case 2:
@@ -182,15 +199,14 @@ public class Player : MonoBehaviour
                         break;
 
                     case 1:
-                        Packet SyncGridPacket = new Packet();
-                        SyncGridPacket.Write((int)RequestsID.SYNC_GRID);
-                        SyncGridPacket.Write(SystemInfo.deviceUniqueIdentifier);
-                        Sender.TCP_Send(SyncGridPacket);
+                        RushSyncRequest();
+                        //Packet SyncGridPacket = new Packet();
+                        //SyncGridPacket.Write((int)RequestsID.SYNC_GRID);
+                        //Sender.TCP_Send(SyncGridPacket);
 
-                        Packet SyncPlayerPacket = new Packet();
-                        SyncPlayerPacket.Write((int)RequestsID.SYNC);
-                        SyncPlayerPacket.Write(SystemInfo.deviceUniqueIdentifier);
-                        Sender.TCP_Send(SyncPlayerPacket);
+                        //Packet SyncPlayerPacket = new Packet();
+                        //SyncPlayerPacket.Write((int)RequestsID.SYNC);
+                        //Sender.TCP_Send(SyncPlayerPacket);
                         break;
 
                     case 2:
@@ -208,15 +224,14 @@ public class Player : MonoBehaviour
                         break;
 
                     case 1:
-                        Packet SyncGridPacket = new Packet();
-                        SyncGridPacket.Write((int)RequestsID.SYNC_GRID);
-                        SyncGridPacket.Write(SystemInfo.deviceUniqueIdentifier);
-                        Sender.TCP_Send(SyncGridPacket);
+                        RushSyncRequest();
+                        //Packet SyncGridPacket = new Packet();
+                        //SyncGridPacket.Write((int)RequestsID.SYNC_GRID);
+                        //Sender.TCP_Send(SyncGridPacket);
 
-                        Packet SyncPlayerPacket = new Packet();
-                        SyncPlayerPacket.Write((int)RequestsID.SYNC);
-                        SyncPlayerPacket.Write(SystemInfo.deviceUniqueIdentifier);
-                        Sender.TCP_Send(SyncPlayerPacket);
+                        //Packet SyncPlayerPacket = new Packet();
+                        //SyncPlayerPacket.Write((int)RequestsID.SYNC);
+                        //Sender.TCP_Send(SyncPlayerPacket);
                         break;
 
                     case 2:
@@ -242,20 +257,55 @@ public class Player : MonoBehaviour
                         break;
 
                     case 3:
-                        Debug.Log("Am primit raspunul 3 de la BUILD_ARMY_CAMP");
-                        Packet SyncGridPacket = new Packet();
-                        SyncGridPacket.Write((int)RequestsID.SYNC_GRID);
-                        SyncGridPacket.Write(SystemInfo.deviceUniqueIdentifier);
-                        Sender.TCP_Send(SyncGridPacket);
+                        RushSyncRequest();
+                        //Packet SyncGridPacket = new Packet();
+                        //SyncGridPacket.Write((int)RequestsID.SYNC_GRID);
+                        //Sender.TCP_Send(SyncGridPacket);
 
-                        Packet SyncPlayerPacket = new Packet();
-                        SyncPlayerPacket.Write((int)RequestsID.SYNC);
-                        SyncPlayerPacket.Write(SystemInfo.deviceUniqueIdentifier);
-                        Sender.TCP_Send(SyncPlayerPacket);
+                        //Packet SyncPlayerPacket = new Packet();
+                        //SyncPlayerPacket.Write((int)RequestsID.SYNC);
+                        //Sender.TCP_Send(SyncPlayerPacket);
                         break;
                 }
                 break;
 
+            case RequestsID.TRAIN:
+                int trainResponse = received_packet.ReadInt();
+                switch (trainResponse)
+                {
+                    case 0:
+                        Debug.LogError("Unit not found!");
+                        break;
+
+                    case 1:
+                        Debug.LogError("You don't have enough space in the ArmyCamp!");
+                        break;
+
+                    case 2:
+                        Debug.LogError("You don't have enough food!");
+                        break;
+
+                    case 3:
+                        RushSyncRequest();                                             
+
+                        break;
+                }
+                break;
+
+            case RequestsID.CANCEL_TRAIN:
+                int cancelTrainResponse = received_packet.ReadInt();
+                switch (cancelTrainResponse)
+                {
+                    case 0:
+                        Debug.LogError("Unit not found!");
+                        break;
+
+                    case 1:
+                        RushSyncRequest();
+                        break;
+                
+                }
+                break;
         }
 
     }
@@ -268,9 +318,33 @@ public class Player : MonoBehaviour
         UI_Main.instance._stoneText.text = player.stone.ToString();
         UI_Main.instance._foodText.text = player.food.ToString();
 
+        instance.data.gems = player.gems;
+        instance.data.gold = player.gold;
+        instance.data.stone = player.stone;
+        instance.data.wood = player.wood;
+        instance.data.food = player.food;
+
+        Player.instance.data.units = player.units;
+
+
+        if (UI_Train.instance.isOpen)
+        {
+            UI_Train.instance.Sync();
+        }
+
     }
 
-    
+    private void RushSyncRequest()
+    {
+        Packet SyncGridPacket = new Packet();
+        SyncGridPacket.Write((int)RequestsID.SYNC_GRID);
+        Sender.TCP_Send(SyncGridPacket);
+
+        Packet SyncPlayerPacket = new Packet();
+        SyncPlayerPacket.Write((int)RequestsID.SYNC);
+        Sender.TCP_Send(SyncPlayerPacket);
+    }
+
     private void DisconnectedFromServer()
     {
         RealtimeNetworking.OnDisconnectedFromServer -= DisconnectedFromServer;

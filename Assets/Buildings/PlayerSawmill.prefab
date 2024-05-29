@@ -12,7 +12,6 @@ GameObject:
   - component: {fileID: 9185030534868214335}
   - component: {fileID: 9133807679938987251}
   - component: {fileID: 6957396597515164451}
-  - component: {fileID: -5874729961280822571}
   m_Layer: 0
   m_Name: PlayerSawmill
   m_TagString: Untagged
@@ -111,21 +110,6 @@ MeshCollider:
   m_Convex: 1
   m_CookingOptions: 30
   m_Mesh: {fileID: 4300000, guid: 1341def1465b9ee42ab1a58327fc3676, type: 3}
---- !u!114 &-5874729961280822571
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7908876802638209953}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7dccef5d4e9c24065b6605749110dee8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _levels: []
-  _row: 0
-  _column: 0
 --- !u!1001 &317049716027909139
 PrefabInstance:
   m_ObjectHideFlags: 0

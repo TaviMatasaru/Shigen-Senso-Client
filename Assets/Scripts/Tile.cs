@@ -62,7 +62,7 @@ public class Tile : MonoBehaviour
                 else
                 {
                     UI_BuildingOptions.instance._armyCampElement.SetActive(false);
-                    UI_BuildingOptions.instance._pathFindingTestElement.SetActive(true);
+                    //UI_BuildingOptions.instance._pathFindingTestElement.SetActive(true);
                 }
             }
         }

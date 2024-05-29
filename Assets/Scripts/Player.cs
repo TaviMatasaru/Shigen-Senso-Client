@@ -45,8 +45,6 @@ public class Player : MonoBehaviour
 
     bool connected = false;
     private float timer;
-    private bool updating = false;
-    private float syncTime = 5;
 
     public void Start()
     {
@@ -66,7 +64,6 @@ public class Player : MonoBehaviour
         {
             if(timer >= 1)
             {
-                updating = true;
                 timer = 0;
 
                 if (HexGridManager.Instance._isCastleBuild)
@@ -130,16 +127,14 @@ public class Player : MonoBehaviour
 
                 Sender.TCP_Send(packetToSend);
 
-                connected = true;
-                updating = true;
+                connected = true;             
                 timer = 0;
                 break;
 
             case RequestsID.SYNC:               
                 string playerData = received_packet.ReadString();
                 Data.Player playerSyncData = Data.Deserialize<Data.Player>(playerData);
-                SyncPlayerData(playerSyncData);
-                updating = false;
+                SyncPlayerData(playerSyncData);               
                 break;
 
             case RequestsID.NEW_GRID:              
@@ -324,7 +319,7 @@ public class Player : MonoBehaviour
         instance.data.wood = player.wood;
         instance.data.food = player.food;
 
-        Player.instance.data.units = player.units;
+        instance.data.units = player.units;
 
 
         if (UI_Train.instance.isOpen)

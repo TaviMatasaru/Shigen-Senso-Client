@@ -87,10 +87,7 @@ public class UI_BuildingOptions : MonoBehaviour
             packetToSend.Write((int)Player.RequestsID.BUILD_STONE_MINE);
             packetToSend.Write(selectedTile.tile.x);
             packetToSend.Write(selectedTile.tile.y);
-            Sender.TCP_Send(packetToSend);
-
-            //ResourceManager.instance.BuyGoldMine();
-            //HexGridManager.Instance.ChangeTileHexType(selectedTile, Player.HexType.PLAYER_STONE_MINE);           
+            Sender.TCP_Send(packetToSend);                
 
             _buildingElements.SetActive(false);
             
@@ -108,10 +105,7 @@ public class UI_BuildingOptions : MonoBehaviour
             packetToSend.Write(selectedTile.tile.x);
             packetToSend.Write(selectedTile.tile.y);
             Sender.TCP_Send(packetToSend);
-
-            //ResourceManager.instance.BuySawmill();
-            //HexGridManager.Instance.ChangeTileHexType(selectedTile, Player.HexType.PLAYER_SAWMILL);
-
+           
             _buildingElements.SetActive(false);
         }        
     }
@@ -127,9 +121,7 @@ public class UI_BuildingOptions : MonoBehaviour
             packetToSend.Write(selectedTile.tile.x);
             packetToSend.Write(selectedTile.tile.y);
             Sender.TCP_Send(packetToSend);
-
-            //ResourceManager.instance.BuyFarm();
-            //HexGridManager.Instance.ChangeTileHexType(selectedTile, Player.HexType.PLAYER_FARM);            
+           
             _buildingElements.SetActive(false);
         }        
     }
@@ -145,11 +137,7 @@ public class UI_BuildingOptions : MonoBehaviour
             packetToSend.Write(selectedTile.tile.x);
             packetToSend.Write(selectedTile.tile.y);
             Sender.TCP_Send(packetToSend);
-
-
-            //ResourceManager.instance.BuyArmyCamp();
-            //HexGridManager.Instance.ChangeTileHexType(selectedTile, Player.HexType.PLAYER_ARMY_CAMP);             
-            //    HexGridManager.Instance.TransformArmyCampNeighbors(selectedTile);
+           
             _armyCampElement.SetActive(false);
         }        
     }
@@ -186,15 +174,14 @@ public class UI_BuildingOptions : MonoBehaviour
 
     public void FindPathClicked()
     {
-        Tile selectedTile = HexGridManager.Instance.GetCurrentlySelectedTile();
-        Tile startTile = HexGridManager.Instance.hexGrid[0, 0];
+        //Tile selectedTile = HexGridManager.Instance.GetCurrentlySelectedTile();
 
-        UnitManager movementManager = FindObjectOfType<UnitManager>(); // Find the movement manager in the scene
-        movementManager.startTile = startTile;
-        movementManager.destinationTile = selectedTile;
-        movementManager.SpawnUnitAt(startTile);
+        //UnitManager movementManager = FindObjectOfType<UnitManager>(); // Find the movement manager in the scene
+        //movementManager.startTile = HexGridManager.Instance.castleTile;
+        //movementManager.destinationTile = selectedTile;
+        //movementManager.SpawnUnitAt(HexGridManager.Instance.castleTile);
 
-        _pathFindingTestElement.SetActive(false);
+        //_pathFindingTestElement.SetActive(false);
     }
 
 

@@ -16,7 +16,7 @@ public class HexGridManager : MonoBehaviour
     public float hexHeight = 1.18f;
     private Tile currentlySelectedTile;
     public bool _isCastleBuild = false;
-    public Tile _castleTile;
+    public Tile castleTile;
 
     public Tile[,] hexGrid;
     public PathNode[,] pathGrid;
@@ -51,17 +51,7 @@ public class HexGridManager : MonoBehaviour
             Tile hexTile = hex.AddComponent<Tile>();
             hexTile.Initialize(tile);
 
-            if(hexTile.tile.hexType == (int)Player.HexType.PLAYER_CASTLE)
-            {
-                _castleTile = hexTile;
-            }
-
-            hexGrid[x_pos, y_pos] = hexTile;
-
-            if (hexTile.tile.hexType == (int)Player.HexType.PLAYER_CASTLE)
-            {
-                _castleTile = hexGrid[x_pos, y_pos];
-            }
+            hexGrid[x_pos, y_pos] = hexTile;          
 
             pathGrid[tile.x, tile.y] = new PathNode(hexTile);
         }
@@ -76,6 +66,11 @@ public class HexGridManager : MonoBehaviour
             if(hexGrid[x_pos, y_pos].tile.hexType != tile.hexType)
             {
                 ChangeTileHexType(hexGrid[x_pos, y_pos], (Player.HexType)tile.hexType);
+
+                if (tile.hexType == (int)Player.HexType.PLAYER_CASTLE)
+                {
+                    castleTile = hexGrid[x_pos, y_pos];
+                }
             }
         }
     }
@@ -130,13 +125,7 @@ public class HexGridManager : MonoBehaviour
         newTile.Initialize(hexTile.tile);
         newTile.tile.hexType = (int)hexType;
 
-        hexGrid[x_pos, y_pos] = newTile;
-
-        //if (newTile.tile.hexType == (int)Player.HexType.PLAYER_STONE_MINE || newTile.tile.hexType == (int)Player.HexType.PLAYER_SAWMILL || newTile.tile.hexType == (int)Player.HexType.PLAYER_FARM)
-        //{
-        //    ResourceManager.instance.resourceGenerators.Add(newTile);
-        //    ResourceManager.instance.UpdateResourceProductionRate();
-        //}
+        hexGrid[x_pos, y_pos] = newTile;        
     }
 
     public void ChangeTileLandTypeToPlayer(Tile hexTile)

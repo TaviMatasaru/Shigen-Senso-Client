@@ -16,6 +16,7 @@ public class HexGridManager : MonoBehaviour
     public float hexHeight = 1.18f;
     private Tile currentlySelectedTile;
     public bool _isCastleBuild = false;
+    public bool gridGenerated = false;
     public Tile castleTile;
 
     public Tile[,] hexGrid;
@@ -55,6 +56,7 @@ public class HexGridManager : MonoBehaviour
 
             pathGrid[tile.x, tile.y] = new PathNode(hexTile);
         }
+        gridGenerated = true;
     }
 
     public void SyncHexGrid(Data.HexGrid grid)
@@ -67,9 +69,21 @@ public class HexGridManager : MonoBehaviour
             {
                 ChangeTileHexType(hexGrid[x_pos, y_pos], (Player.HexType)tile.hexType);
 
-                if (tile.hexType == (int)Player.HexType.PLAYER_CASTLE)
+                if (tile.hexType == (int)Player.HexType.PLAYER1_CASTLE)
                 {
-                    castleTile = hexGrid[x_pos, y_pos];
+                    if (Player.instance.data.isPlayer1 == 1)
+                    {
+                        castleTile = hexGrid[x_pos, y_pos];
+                    }
+                    
+                }
+                if (tile.hexType == (int)Player.HexType.PLAYER2_CASTLE)
+                {
+                    if (Player.instance.data.isPlayer1 == 0)
+                    {
+                        castleTile = hexGrid[x_pos, y_pos];
+                    }
+
                 }
             }
         }
@@ -99,7 +113,6 @@ public class HexGridManager : MonoBehaviour
     }
 
 
-
     public Vector3 CalculatePosition(int x, int y)
     {
         float horizontalSpacing = hexWidth * Mathf.Sqrt(3) / 2;
@@ -107,7 +120,6 @@ public class HexGridManager : MonoBehaviour
         float yPos = y * hexHeight * 0.75f;
         return new Vector3(xPos, 0, yPos);
     }
-
 
 
     public void ChangeTileHexType(Tile hexTile, Player.HexType hexType)
@@ -130,24 +142,46 @@ public class HexGridManager : MonoBehaviour
 
     public void ChangeTileLandTypeToPlayer(Tile hexTile)
     {
-        switch (hexTile.tile.hexType)
+        switch (Player.instance.data.isPlayer1)
         {
-            case (int)Player.HexType.FREE_LAND:
-                ChangeTileHexType(hexTile, Player.HexType.PLAYER_LAND);
+            case 1:
+                switch (hexTile.tile.hexType)
+                {
+                    case (int)Player.HexType.FREE_LAND:
+                        ChangeTileHexType(hexTile, Player.HexType.PLAYER1_LAND);
+                        break;
+                    case (int)Player.HexType.FREE_FOREST:
+                        ChangeTileHexType(hexTile, Player.HexType.PLAYER1_FOREST);
+                        break;
+                    case (int)Player.HexType.FREE_MOUNTAIN:
+                        ChangeTileHexType(hexTile, Player.HexType.PLAYER1_MOUNTAIN);
+                        break;
+                    case (int)Player.HexType.FREE_CROPS:
+                        ChangeTileHexType(hexTile, Player.HexType.PLAYER1_CROPS);
+                        break;
+                }
                 break;
-            case (int)Player.HexType.FREE_FOREST:
-                ChangeTileHexType(hexTile, Player.HexType.PLAYER_FOREST);
-                break;
-            case (int)Player.HexType.FREE_MOUNTAIN:
-                ChangeTileHexType(hexTile, Player.HexType.PLAYER_MOUNTAIN);
-                break;
-            case (int)Player.HexType.FREE_CROPS:
-                ChangeTileHexType(hexTile, Player.HexType.PLAYER_CROPS);
+
+            case 2:
+                switch (hexTile.tile.hexType)
+                {
+                    case (int)Player.HexType.FREE_LAND:
+                        ChangeTileHexType(hexTile, Player.HexType.PLAYER2_LAND);
+                        break;
+                    case (int)Player.HexType.FREE_FOREST:
+                        ChangeTileHexType(hexTile, Player.HexType.PLAYER2_FOREST);
+                        break;
+                    case (int)Player.HexType.FREE_MOUNTAIN:
+                        ChangeTileHexType(hexTile, Player.HexType.PLAYER2_MOUNTAIN);
+                        break;
+                    case (int)Player.HexType.FREE_CROPS:
+                        ChangeTileHexType(hexTile, Player.HexType.PLAYER2_CROPS);
+                        break;
+                }
                 break;
         }
-
+       
     }
-
 
 
     public List<Tile> Get2RingsOfNeighbours(Tile centerHexTile)
@@ -293,7 +327,6 @@ public class HexGridManager : MonoBehaviour
     }
 
 
-
     public List<Tile> FindPath(Tile startTile, Tile targetTile)
     {
         PathNode startNode = pathGrid[startTile.tile.x, startTile.tile.y];
@@ -394,16 +427,6 @@ public class HexGridManager : MonoBehaviour
         }
         path.Reverse();
         return path;
-    }
-
-
-
-    public void DrawPath(List<Tile> path)
-    {
-        foreach(Tile tile in path)
-        {
-            ChangeTileHexType(tile, Player.HexType.PATH_TILE);
-        }
     }
 
 }

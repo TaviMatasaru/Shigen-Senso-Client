@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 2049860494259757053}
   - component: {fileID: 1825036459965667473}
   m_Layer: 0
-  m_Name: PlayerArmyCamp
+  m_Name: Player1ArmyCamp
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

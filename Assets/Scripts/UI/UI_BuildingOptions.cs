@@ -11,8 +11,6 @@ public class UI_BuildingOptions : MonoBehaviour
     [SerializeField] public GameObject _armyCampElement = null;
     [SerializeField] public GameObject _openArmyCampElement = null;
 
-    [SerializeField] public GameObject _pathFindingTestElement = null;
-
     [SerializeField] public Button _buildCastle = null;
     [SerializeField] public Button _buildStonedMine = null;
     [SerializeField] public Button _buildSawmill = null;
@@ -24,8 +22,7 @@ public class UI_BuildingOptions : MonoBehaviour
     [SerializeField] public Button _trainBarbarianButton = null;
     [SerializeField] public Button _trainArcherButton = null;
 
-    [SerializeField] public Button _findPath = null;
-
+ 
 
 
 
@@ -38,9 +35,7 @@ public class UI_BuildingOptions : MonoBehaviour
         _buildingElements.SetActive(false);
         _castleElement.SetActive(false);
         _armyCampElement.SetActive(false);
-        _openArmyCampElement.SetActive(false);
-
-        _pathFindingTestElement.SetActive(false);
+        _openArmyCampElement.SetActive(false);       
     }
 
     private void Start()
@@ -54,8 +49,7 @@ public class UI_BuildingOptions : MonoBehaviour
 
         _trainBarbarianButton.onClick.AddListener(TrainBarbarianClicked);
         _trainArcherButton.onClick.AddListener(TrainArcherClicked);
-
-        _findPath.onClick.AddListener(FindPathClicked);
+        
     }
 
     public void BuildCastleClicked()
@@ -169,19 +163,6 @@ public class UI_BuildingOptions : MonoBehaviour
         packet.Write(armyCampTile.tile.y);
 
         Sender.TCP_Send(packet);
-    }
-
-
-    public void FindPathClicked()
-    {
-        //Tile selectedTile = HexGridManager.Instance.GetCurrentlySelectedTile();
-
-        //UnitManager movementManager = FindObjectOfType<UnitManager>(); // Find the movement manager in the scene
-        //movementManager.startTile = HexGridManager.Instance.castleTile;
-        //movementManager.destinationTile = selectedTile;
-        //movementManager.SpawnUnitAt(HexGridManager.Instance.castleTile);
-
-        //_pathFindingTestElement.SetActive(false);
     }
 
 

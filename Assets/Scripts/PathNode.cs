@@ -22,9 +22,11 @@ public class PathNode
             case Player.HexType.FREE_MOUNTAIN:
             case Player.HexType.FREE_FOREST:
             //case Player.HexType.FREE_CROPS:
-            case Player.HexType.PLAYER_MOUNTAIN:
-            case Player.HexType.PLAYER_FOREST:
-            //case Player.HexType.PLAYER_CROPS:
+            case Player.HexType.PLAYER1_MOUNTAIN:
+            case Player.HexType.PLAYER1_FOREST:
+            case Player.HexType.PLAYER2_MOUNTAIN:
+            case Player.HexType.PLAYER2_FOREST:
+                //case Player.HexType.PLAYER_CROPS:
                 return false;
             default:
                 return true;

@@ -81,10 +81,10 @@ public class UI_Train : MonoBehaviour
                     }
                     if (x >= 0)
                     {
-                        if (Player.instance.data.units[x].ready)
-                        {
-                            RemoveTrainingItem(i);
-                        }
+                        //if (Player.instance.data.units[x].ready)
+                        //{
+                        //    RemoveTrainingItem(i);
+                        //}
                     }
                     else
                     {
@@ -157,35 +157,35 @@ public class UI_Train : MonoBehaviour
     {
         for (int i = 0; i < Player.instance.data.units.Count; i++)
         {
-            if (Player.instance.data.units[i].ready == false)
-            {
-                int x = -1;
-                for (int j = 0; j < trainigItems.Count; j++)
-                {
-                    if (trainigItems[j] && Player.instance.data.units[i].databaseID == trainigItems[j].databaseID)
-                    {
-                        x = j;
-                        break;
-                    }
-                }
-                if (x >= 0)
-                {
+            //if (Player.instance.data.units[i].ready == false)
+            //{
+            //    int x = -1;
+            //    for (int j = 0; j < trainigItems.Count; j++)
+            //    {
+            //        if (trainigItems[j] && Player.instance.data.units[i].databaseID == trainigItems[j].databaseID)
+            //        {
+            //            x = j;
+            //            break;
+            //        }
+            //    }
+            //    if (x >= 0)
+            //    {
 
-                }
-                else
-                {
-                    if (isOpen)
-                    {
-                        Tile selectedArmyCamp =  HexGridManager.Instance.GetCurrentlySelectedTile();
-                        if(Player.instance.data.units[i].armyCamp_x == selectedArmyCamp.tile.x && Player.instance.data.units[i].armyCamp_y == selectedArmyCamp.tile.y)
-                        {
-                            UI_UnitsTraining unit = Instantiate(_trainPrefab, _trainGrid.transform);
-                            unit.Initialize(Player.instance.data.units[i]);
-                            trainigItems.Add(unit);
-                        } 
-                    }                    
-                }
-            }
+            //    }
+            //    else
+            //    {
+            //        if (isOpen)
+            //        {
+            //            Tile selectedArmyCamp =  HexGridManager.Instance.GetCurrentlySelectedTile();
+            //            if(Player.instance.data.units[i].armyCamp_x == selectedArmyCamp.tile.x && Player.instance.data.units[i].armyCamp_y == selectedArmyCamp.tile.y)
+            //            {
+            //                UI_UnitsTraining unit = Instantiate(_trainPrefab, _trainGrid.transform);
+            //                unit.Initialize(Player.instance.data.units[i]);
+            //                trainigItems.Add(unit);
+            //            } 
+            //        }                    
+            //    }
+            //}
         }
         ResetTrainingItemsIndex();
     }

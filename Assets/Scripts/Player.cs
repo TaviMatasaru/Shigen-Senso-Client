@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using DevelopersHub.RealtimeNetworking.Client;
+using System;
 
 public class Player : MonoBehaviour
 {
@@ -24,8 +25,8 @@ public class Player : MonoBehaviour
         TRAIN = 10,
         CANCEL_TRAIN = 11,
         SEARCH = 12,
-        CANCEL_SEARCH = 13,
-        PRE_SYNC = 14
+        CANCEL_SEARCH = 13,        
+        UNIT_READY = 14,      
     }
 
     public enum HexType
@@ -56,7 +57,7 @@ public class Player : MonoBehaviour
 
     bool connected = false;
     bool isFirstGrid = true;
-    private float timer;
+    private double timer;
 
     public void Start()
     {
@@ -87,6 +88,10 @@ public class Player : MonoBehaviour
                     Packet SyncPlayerPacket = new Packet();
                     SyncPlayerPacket.Write((int)RequestsID.SYNC);
                     Sender.TCP_Send(SyncPlayerPacket);
+
+                    //********DEBUG********
+                    Debug.Log("Trimit Sync Request!!");
+
                 }
                 else
                 {
@@ -114,7 +119,7 @@ public class Player : MonoBehaviour
         if (successfull)
         {
             RealtimeNetworking.OnDisconnectedFromServer += DisconnectedFromServer;
-            string device = SystemInfo.deviceUniqueIdentifier;
+            string device = SystemInfo.deviceUniqueIdentifier + "_TEST_" + DateTime.Now;
             Packet packet = new Packet();
             packet.Write((int)RequestsID.AUTH);
             packet.Write(device);
@@ -136,7 +141,7 @@ public class Player : MonoBehaviour
         {
             case RequestsID.AUTH:
                 string authData = received_packet.ReadString();
-                initializationData = Data.Deserialize<Data.InitializationData>(authData);
+                instance.initializationData = Data.Deserialize<Data.InitializationData>(authData);
 
                               
                 Packet packetToSend = new Packet();
@@ -151,7 +156,11 @@ public class Player : MonoBehaviour
 
             case RequestsID.SYNC:               
                 string playerData = received_packet.ReadString();
-                Data.Player playerSyncData = Data.Deserialize<Data.Player>(playerData);             
+                Data.Player playerSyncData = Data.Deserialize<Data.Player>(playerData);
+
+
+                //********DEBUG********
+                Debug.Log("Am Primit Sync Request!!");
 
                 SyncPlayerData(playerSyncData);               
                 break;
@@ -325,6 +334,21 @@ public class Player : MonoBehaviour
 
                 }
                 break;
+
+            case RequestsID.UNIT_READY:
+                int unitReadyResponse = received_packet.ReadInt();
+                switch (unitReadyResponse)
+                {
+                    case 1:
+                        Debug.LogError("Unit not on the target coords!");
+                        break;
+
+                    case 2:
+                        RushSyncRequest();
+                        break;
+
+                }
+                break;
         }
 
     }
@@ -344,20 +368,16 @@ public class Player : MonoBehaviour
         instance.data.food = player.food;
 
         instance.data.units = player.units;
-
+       
         instance.data.hasCastle = player.hasCastle;
+        instance.data.castle_x = player.castle_x;
+        instance.data.castle_y = player.castle_y;
 
         instance.data.isOnline = player.isOnline;
         instance.data.isSearching = player.isSearching;
         instance.data.inGame = player.inGame;
         instance.data.gameID = player.gameID;
-        instance.data.isPlayer1 = player.isPlayer1;
-       
-    //if (UI_Train.instance.isOpen)
-    //{
-    //    UI_Train.instance.Sync();
-    //}
-
+        instance.data.isPlayer1 = player.isPlayer1;         
 }
 
     private void RushSyncRequest()

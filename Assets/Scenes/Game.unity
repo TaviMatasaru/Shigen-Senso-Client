@@ -1542,7 +1542,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   unitPrefabs:
-  - {fileID: -2030070525691360354, guid: 917e00053cb499241a1d42e2b2716532, type: 3}
+  - {fileID: 3596748220834623885, guid: 917e00053cb499241a1d42e2b2716532, type: 3}
 --- !u!4 &324399512
 Transform:
   m_ObjectHideFlags: 0
@@ -1689,7 +1689,9 @@ MonoBehaviour:
   hexWidth: 1.18
   hexHeight: 1.18
   _isCastleBuild: 0
-  castleTile: {fileID: 0}
+  gridGenerated: 0
+  player1CastleTile: {fileID: 0}
+  player2CastleTile: {fileID: 0}
 --- !u!4 &392053640
 Transform:
   m_ObjectHideFlags: 0

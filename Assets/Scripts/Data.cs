@@ -17,6 +17,8 @@ public static class Data
         public int foodProduction = 0;
 
         public bool hasCastle = false;
+        public int castle_x = 0;
+        public int castle_y = 0;
 
         public int isOnline = 0;
         public int isSearching = 0;
@@ -25,7 +27,7 @@ public static class Data
         public int isPlayer1 = 0;
 
 
-        public List<Unit> units = new List<Unit>();
+        public List<Unit> units = new List<Unit>();        
     }
 
     public class InitializationData
@@ -70,16 +72,26 @@ public static class Data
     public class Unit
     {
         public UnitID id = UnitID.barbarian;
+        public int gameID = 0;
         public int level = 0;
         public long databaseID = 0;
         public int housing = 1;
         public bool trained = false;
-        public bool ready = false;
+        public bool ready_player1 = false;
+        public bool ready_player2 = false;
         public int health = 0;
         public int trainTime = 0;
         public float trainedTime = 0;
         public int armyCamp_x = 0;
         public int armyCamp_y = 0;
+        public int current_x = 0;
+        public int current_y = 0;
+        public int target_x = 0;
+        public int target_y = 0;
+        public bool isPlayer1Unit = true;
+
+        public string serializedPath;
+
     }
 
     public class ServerUnit
@@ -91,6 +103,18 @@ public static class Data
         public int health = 0;
         public int trainTime = 0;
     }
+
+
+    public class PathNode
+    {
+        public HexTile tile = new HexTile();
+        public int gCost = 0; // Cost from start node
+        public int hCost = 0; // Heuristic cost to end node
+        public int FCost => gCost + hCost; // Total cost
+        public PathNode cameFromNode = new PathNode(); // To track the path
+        
+    }
+
 
     public static string Serialize<T>(this T target)
     {

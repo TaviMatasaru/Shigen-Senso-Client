@@ -46,7 +46,7 @@ public class UI_Unit : MonoBehaviour
         count = 0;
         for (int i = 0; i < Player.instance.initializationData.serverUnits.Count; i++)
         {
-            if(Player.instance.data.units[i].id == _id && Player.instance.data.units[i].ready)
+            if(Player.instance.data.units[i].id == _id)
             {
                 count++;
 

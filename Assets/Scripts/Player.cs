@@ -87,10 +87,7 @@ public class Player : MonoBehaviour
 
                     Packet SyncPlayerPacket = new Packet();
                     SyncPlayerPacket.Write((int)RequestsID.SYNC);
-                    Sender.TCP_Send(SyncPlayerPacket);
-
-                    //********DEBUG********
-                    Debug.Log("Trimit Sync Request!!");
+                    Sender.TCP_Send(SyncPlayerPacket);                    
 
                 }
                 else
@@ -156,11 +153,7 @@ public class Player : MonoBehaviour
 
             case RequestsID.SYNC:               
                 string playerData = received_packet.ReadString();
-                Data.Player playerSyncData = Data.Deserialize<Data.Player>(playerData);
-
-
-                //********DEBUG********
-                Debug.Log("Am Primit Sync Request!!");
+                Data.Player playerSyncData = Data.Deserialize<Data.Player>(playerData);               
 
                 SyncPlayerData(playerSyncData);               
                 break;

@@ -15,6 +15,8 @@ public class HexGridManager : MonoBehaviour
     public float hexWidth = 1.18f;
     public float hexHeight = 1.18f;
     private Tile currentlySelectedTile;
+    public bool canSelectAnyTile = true;
+    public Player.HexType SelectedTileTypeAllowed;    
     public bool _isCastleBuild = false;
     public bool gridGenerated = false;
     public Tile player1CastleTile;
@@ -93,24 +95,39 @@ public class HexGridManager : MonoBehaviour
      
 
     public void SelectTile(Tile tile)
-    {
-        if (currentlySelectedTile != null)
-            currentlySelectedTile.Deselect();
-
-        if (currentlySelectedTile != tile)
+    {        
+        if (canSelectAnyTile)
         {
-            currentlySelectedTile = tile;
+            if (currentlySelectedTile != null)
+                currentlySelectedTile.Deselect();
 
-
-            //***************DEBUG*********
-            Debug.Log("Selected tile: x: " + currentlySelectedTile.tile.x + " y: " + currentlySelectedTile.tile.y);
-
-
-            currentlySelectedTile.Select();
+            if (currentlySelectedTile != tile)
+            {
+                currentlySelectedTile = tile;
+                currentlySelectedTile.Select();
+            }
+            else
+            {
+                currentlySelectedTile = null;
+            }
         }
         else
         {
-            currentlySelectedTile = null;
+            if(tile.tile.hexType == (int)SelectedTileTypeAllowed)
+            {
+                if (currentlySelectedTile != null)
+                    currentlySelectedTile.Deselect();
+
+                if (currentlySelectedTile != tile)
+                {
+                    currentlySelectedTile = tile;
+                    currentlySelectedTile.Select();
+                }
+                else
+                {
+                    currentlySelectedTile = null;
+                }
+            }
         }
     }
 
@@ -328,112 +345,7 @@ public class HexGridManager : MonoBehaviour
                 {
                     ChangeTileLandTypeToPlayer(hex);
                 }
-
             }
         }
-    }
-
-
-    //public List<Tile> FindPath(Tile startTile, Tile targetTile)
-    //{
-    //    PathNode startNode = pathGrid[startTile.tile.x, startTile.tile.y];
-    //    PathNode targetNode = pathGrid[targetTile.tile.x, targetTile.tile.y];
-
-    //    List<PathNode> openSet = new List<PathNode>();
-    //    HashSet<PathNode> closedSet = new HashSet<PathNode>();
-    //    openSet.Add(startNode);
-
-    //    while (openSet.Count > 0)
-    //    {
-    //        PathNode currentNode = openSet[0];
-    //        for (int i = 1; i < openSet.Count; i++)
-    //        {
-    //            if (openSet[i].FCost < currentNode.FCost || (openSet[i].FCost == currentNode.FCost && openSet[i].hCost < currentNode.hCost))
-    //            {
-    //                currentNode = openSet[i];
-    //            }
-    //        }
-
-    //        openSet.Remove(currentNode);
-    //        closedSet.Add(currentNode);
-
-    //        if (currentNode == targetNode)
-    //        {
-    //            return RetracePath(startNode, targetNode);
-    //        }
-
-    //        foreach (PathNode neighbor in GetPathNeighbors(currentNode))
-    //        {
-    //            if (!neighbor.IsWalkable() || closedSet.Contains(neighbor))
-    //            {
-    //                continue;
-    //            }
-
-    //            int newCostToNeighbor = currentNode.gCost + GetDistance(currentNode, neighbor);
-    //            if (newCostToNeighbor < neighbor.gCost || !openSet.Contains(neighbor))
-    //            {
-    //                neighbor.gCost = newCostToNeighbor;
-    //                neighbor.hCost = GetDistance(neighbor, targetNode);
-    //                neighbor.cameFromNode = currentNode;
-
-    //                if (!openSet.Contains(neighbor))
-    //                {
-    //                    openSet.Add(neighbor);
-    //                }
-    //            }
-    //        }
-    //    }
-
-    //    return new List<Tile>(); // Return an empty path if no path is found
-    //}
-
-    //private List<PathNode> GetPathNeighbors(PathNode node)
-    //{
-    //    List<PathNode> neighbors = new List<PathNode>();
-    //    int x = node.tile.tile.x;
-    //    int y = node.tile.tile.y;
-    //    Vector2Int[] directions = y % 2 != 0 ? new Vector2Int[]
-    //    {
-    //    new Vector2Int(0, +1), new Vector2Int(+1, +1), new Vector2Int(+1, 0),
-    //    new Vector2Int(+1, -1), new Vector2Int(0, -1), new Vector2Int(-1, 0)
-    //    } :
-    //    new Vector2Int[]
-    //    {
-    //    new Vector2Int(-1, +1), new Vector2Int(0, +1), new Vector2Int(+1, 0),
-    //    new Vector2Int(0,-1), new Vector2Int(-1, -1), new Vector2Int(-1, 0),
-    //    };
-
-    //    foreach (var direction in directions)
-    //    {
-    //        int nx = x + direction.x;
-    //        int ny = y + direction.y;
-    //        if (nx >= 0 && nx < width && ny >= 0 && ny < height)
-    //        {
-    //            neighbors.Add(pathGrid[nx, ny]);
-    //        }
-    //    }
-    //    return neighbors;
-    //}
-
-    //private int GetDistance(PathNode nodeA, PathNode nodeB)
-    //{
-    //    int dx = Math.Abs(nodeA.tile.tile.x - nodeB.tile.tile.x);
-    //    int dy = Math.Abs(nodeA.tile.tile.y - nodeB.tile.tile.y);
-    //    return dy + Math.Max(0, (dx - dy) / 2);
-    //}
-
-    //private List<Tile> RetracePath(PathNode startNode, PathNode endNode)
-    //{
-    //    List<Tile> path = new List<Tile>();
-    //    PathNode currentNode = endNode;
-
-    //    while (currentNode != startNode)
-    //    {
-    //        path.Add(currentNode.tile);
-    //        currentNode = currentNode.cameFromNode;
-    //    }
-    //    path.Reverse();
-    //    return path;
-    //}
-
+    }   
 }

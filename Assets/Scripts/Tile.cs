@@ -34,6 +34,7 @@ public class Tile : MonoBehaviour
         transform.position = new Vector3(_originalPosition.x, _originalPosition.y + 0.15f, _originalPosition.z);
 
 
+
         if(this.tile.hexType == (int)Player.HexType.FREE_LAND)
         {
             if(HexGridManager.Instance._isCastleBuild == false)
@@ -126,8 +127,8 @@ public class Tile : MonoBehaviour
                 else
                 {
                     if (isInRange)
-                    {
-                        UI_BuildingOptions.instance._armyCampElement.SetActive(true);
+                    {                                               
+                            UI_BuildingOptions.instance._armyCampElement.SetActive(true);                       
                     }
                     else
                     {
@@ -143,7 +144,6 @@ public class Tile : MonoBehaviour
             {
                 if (this.tile.hexType == (int)Player.HexType.PLAYER1_LAND)
                 {
-
                     UI_BuildingOptions.instance._buildingElements.SetActive(true);
                     UI_BuildingOptions.instance._armyCampElement.SetActive(false);
                 }
@@ -151,18 +151,27 @@ public class Tile : MonoBehaviour
                 {
                     UI_BuildingOptions.instance._openArmyCampElement.SetActive(true);
                 }
+                else if(this.tile.hexType == (int)Player.HexType.PLAYER2_ARMY_CAMP)
+                {
+                    if(UI_BuildingOptions.instance.selectingEnemyArmyCamp == true)
+                    {
+                        UI_BuildingOptions.instance._cancelAttackElement.SetActive(false);
+                        UI_BuildingOptions.instance._launchAttackElement.SetActive(true);
+                        HexGridManager.Instance.canSelectAnyTile = false;                        
+                    }
+                }
                 else
                 {
                     UI_BuildingOptions.instance._armyCampElement.SetActive(false);
                     UI_BuildingOptions.instance._buildingElements.SetActive(false);
                     UI_BuildingOptions.instance._castleElement.SetActive(false);
-                }
+                    UI_BuildingOptions.instance._launchAttackElement.SetActive(false);
+                }                
             }
             else
             {
                 if (this.tile.hexType == (int)Player.HexType.PLAYER2_LAND)
                 {
-
                     UI_BuildingOptions.instance._buildingElements.SetActive(true);
                     UI_BuildingOptions.instance._armyCampElement.SetActive(false);
                 }
@@ -170,15 +179,27 @@ public class Tile : MonoBehaviour
                 {
                     UI_BuildingOptions.instance._openArmyCampElement.SetActive(true);
                 }
+                else if (this.tile.hexType == (int)Player.HexType.PLAYER1_ARMY_CAMP)
+                {
+                    if (UI_BuildingOptions.instance.selectingEnemyArmyCamp == true)
+                    {
+                        UI_BuildingOptions.instance._cancelAttackElement.SetActive(false);
+                        UI_BuildingOptions.instance._launchAttackElement.SetActive(true);
+                        HexGridManager.Instance.canSelectAnyTile = false;                       
+                    }                        
+                }
                 else
                 {
                     UI_BuildingOptions.instance._armyCampElement.SetActive(false);
                     UI_BuildingOptions.instance._buildingElements.SetActive(false);
                     UI_BuildingOptions.instance._castleElement.SetActive(false);
-                }
+                    UI_BuildingOptions.instance._launchAttackElement.SetActive(false);
+                }               
             }
-        }      
+        }
+        
     }
+   
 
     public void Deselect()
     {

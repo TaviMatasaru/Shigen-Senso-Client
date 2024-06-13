@@ -10,6 +10,8 @@ public class UI_BuildingOptions : MonoBehaviour
     [SerializeField] public GameObject _castleElement = null;
     [SerializeField] public GameObject _armyCampElement = null;
     [SerializeField] public GameObject _openArmyCampElement = null;
+    [SerializeField] public GameObject _launchAttackElement = null;
+    [SerializeField] public GameObject _cancelAttackElement = null;
 
     [SerializeField] public Button _buildCastle = null;
     [SerializeField] public Button _buildStonedMine = null;
@@ -22,8 +24,14 @@ public class UI_BuildingOptions : MonoBehaviour
     [SerializeField] public Button _trainBarbarianButton = null;
     [SerializeField] public Button _trainArcherButton = null;
 
- 
+    [SerializeField] public Button _attackButton = null;
+    [SerializeField] public Button _launchAttackButton = null;
+    [SerializeField] public Button _cancelAttackButton = null;
+    [SerializeField] public Button _cancelLaunchAttackButton = null;
 
+
+    public bool selectingEnemyArmyCamp = false;
+    public Tile attackingArmyCamp;
 
 
 
@@ -35,7 +43,9 @@ public class UI_BuildingOptions : MonoBehaviour
         _buildingElements.SetActive(false);
         _castleElement.SetActive(false);
         _armyCampElement.SetActive(false);
-        _openArmyCampElement.SetActive(false);       
+        _openArmyCampElement.SetActive(false);
+        _launchAttackElement.SetActive(false);
+        _cancelAttackElement.SetActive(false);
     }
 
     private void Start()
@@ -45,11 +55,16 @@ public class UI_BuildingOptions : MonoBehaviour
         _buildSawmill.onClick.AddListener(BuildSawmillClicked);
         _buildFarm.onClick.AddListener(BuildFarmClicked);
         _builArmyCamp.onClick.AddListener(BuildArmyCampClicked);
-        _openArmyCamp.onClick.AddListener(OpenArmyCampClicked);
 
+        _openArmyCamp.onClick.AddListener(OpenArmyCampClicked);
         _trainBarbarianButton.onClick.AddListener(TrainBarbarianClicked);
         _trainArcherButton.onClick.AddListener(TrainArcherClicked);
-        
+
+        _attackButton.onClick.AddListener(AttackButtonClicked);
+        _launchAttackButton.onClick.AddListener(LaunchAttackButtonClicked);
+        _cancelAttackButton.onClick.AddListener(CancelAttackButtonClicked);
+        _cancelLaunchAttackButton.onClick.AddListener(CancelLaunchAttackButtonClicked);
+
     }
 
     public void BuildCastleClicked()
@@ -170,6 +185,52 @@ public class UI_BuildingOptions : MonoBehaviour
     {
         _openArmyCampElement.SetActive(false);
         UI_Train.instance.SetStatus(true);
+    }
+
+    public void AttackButtonClicked()
+    {
+        _openArmyCampElement.SetActive(false);
+        _cancelAttackElement.SetActive(true);
+
+        attackingArmyCamp = HexGridManager.Instance.GetCurrentlySelectedTile();
+        selectingEnemyArmyCamp = true;
+
+        HexGridManager.Instance.canSelectAnyTile = false;
+
+        if(Player.instance.data.isPlayer1 == 1)
+        {
+            HexGridManager.Instance.SelectedTileTypeAllowed = Player.HexType.PLAYER2_ARMY_CAMP;
+        }
+        else
+        {
+            HexGridManager.Instance.SelectedTileTypeAllowed = Player.HexType.PLAYER1_ARMY_CAMP;
+        }
+                
+    }
+
+    public void CancelAttackButtonClicked()
+    {
+        selectingEnemyArmyCamp = false;
+        _cancelAttackElement.SetActive(false);
+
+        HexGridManager.Instance.canSelectAnyTile = true;
+    }
+
+    public void LaunchAttackButtonClicked()
+    {
+        //TODO: send the LAUNCH_ATTACK request
+
+        selectingEnemyArmyCamp = false;
+        _launchAttackElement.SetActive(false);
+
+        HexGridManager.Instance.canSelectAnyTile = true;        
+    }
+
+    public void CancelLaunchAttackButtonClicked()
+    {
+        selectingEnemyArmyCamp = false;
+        _launchAttackElement.SetActive(false);
+        HexGridManager.Instance.canSelectAnyTile = true;
     }
 
 

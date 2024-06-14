@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using DevelopersHub.RealtimeNetworking.Client;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -12,6 +13,18 @@ public class UI_BuildingOptions : MonoBehaviour
     [SerializeField] public GameObject _openArmyCampElement = null;
     [SerializeField] public GameObject _launchAttackElement = null;
     [SerializeField] public GameObject _cancelAttackElement = null;
+
+
+
+    [SerializeField] public TextMeshProUGUI _capacityText = null;
+    //[SerializeField] public TextMeshProUGUI _maxCapacityText = null; TODO: if have time
+    [SerializeField] public TextMeshProUGUI _powerText = null;
+    [SerializeField] public TextMeshProUGUI _defenseText = null;
+    [SerializeField] public TextMeshProUGUI _yourAttackPowerText = null;
+    [SerializeField] public TextMeshProUGUI _enemyDefenseText = null;
+    [SerializeField] public TextMeshProUGUI _availableUnitsText = null;
+    [SerializeField] public TextMeshProUGUI _selectedUnits = null;    
+
 
     [SerializeField] public Button _buildCastle = null;
     [SerializeField] public Button _buildStonedMine = null;
@@ -28,10 +41,15 @@ public class UI_BuildingOptions : MonoBehaviour
     [SerializeField] public Button _launchAttackButton = null;
     [SerializeField] public Button _cancelAttackButton = null;
     [SerializeField] public Button _cancelLaunchAttackButton = null;
+    [SerializeField] public Button _addUnitButton = null;
+    [SerializeField] public Button _removeUnitButton = null;
 
 
     public bool selectingEnemyArmyCamp = false;
     public Tile attackingArmyCamp;
+    public int availableUnits = 0;
+    public int selectedUnits = 0;
+    public int selectedUnitsAttack = 0;
 
 
 
@@ -64,6 +82,8 @@ public class UI_BuildingOptions : MonoBehaviour
         _launchAttackButton.onClick.AddListener(LaunchAttackButtonClicked);
         _cancelAttackButton.onClick.AddListener(CancelAttackButtonClicked);
         _cancelLaunchAttackButton.onClick.AddListener(CancelLaunchAttackButtonClicked);
+        _addUnitButton.onClick.AddListener(AddUnitButtonClicked);
+        _removeUnitButton.onClick.AddListener(RemoveUnitButtonClicked);
 
     }
 
@@ -216,8 +236,40 @@ public class UI_BuildingOptions : MonoBehaviour
         HexGridManager.Instance.canSelectAnyTile = true;
     }
 
+    public void AddUnitButtonClicked()
+    {
+        if(availableUnits > 0)
+        {
+            availableUnits -= 1;
+            selectedUnits += 1;
+            selectedUnitsAttack += Player.instance.data.units[1].damage;
+        }       
+    }
+
+    public void RemoveUnitButtonClicked()
+    {
+        if (selectedUnits > 0)
+        {
+            availableUnits += 1;
+            selectedUnits -= 1;
+            selectedUnitsAttack -= Player.instance.data.units[1].damage;
+        }
+    }
+
+
+
     public void LaunchAttackButtonClicked()
     {
+
+        Packet packet = new Packet();
+        packet.Write((int)Player.RequestsID.LAUNCH_ATTACK);
+        packet.Write(selectedUnits);
+        packet.Write(attackingArmyCamp.tile.x);
+        packet.Write(attackingArmyCamp.tile.y);
+        packet.Write(HexGridManager.Instance.GetCurrentlySelectedTile().tile.x);
+        packet.Write(HexGridManager.Instance.GetCurrentlySelectedTile().tile.y);
+        Sender.TCP_Send(packet);
+
         //TODO: send the LAUNCH_ATTACK request
 
         selectingEnemyArmyCamp = false;

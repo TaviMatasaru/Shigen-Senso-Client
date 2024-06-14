@@ -97,11 +97,10 @@ public class Unit : MonoBehaviour
     {
         foreach (Data.HexTile tile in path)
         {           
-            pathPoints.Enqueue(HexGridManager.Instance.CalculatePosition(tile.x, tile.y));
+            pathPoints.Enqueue(HexGridManager.Instance.CalculateUnitPosition(tile.x, tile.y));
             gridPathPoints.Enqueue(new Vector2Int(tile.x, tile.y));
         }
     }
-
-
+    
 
 }

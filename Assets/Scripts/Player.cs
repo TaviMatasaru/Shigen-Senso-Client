@@ -26,7 +26,8 @@ public class Player : MonoBehaviour
         CANCEL_TRAIN = 11,
         SEARCH = 12,
         CANCEL_SEARCH = 13,        
-        UNIT_READY = 14,      
+        UNIT_READY = 14,
+        LAUNCH_ATTACK = 15
     }
 
     public enum HexType
@@ -280,7 +281,7 @@ public class Player : MonoBehaviour
                 switch (trainResponse)
                 {
                     case 0:
-                        Debug.LogError("Unit not found!");
+                        Debug.LogError("You can not train more units if your armycamp is attacking");
                         break;
 
                     case 1:

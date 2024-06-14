@@ -54,6 +54,13 @@ public static class Data
         public int health = 0;
 
         public int capacity = 0;
+
+        public int attack = 0;
+        public int defense = 0;
+
+        public bool isAttacking = false;
+        public bool isDefending = false;
+        public bool isUnderAttack = false;
     }
 
     public class HexGrid
@@ -80,6 +87,8 @@ public static class Data
         public bool ready_player1 = false;
         public bool ready_player2 = false;
         public int health = 0;
+        public int damage = 0;
+        public int def_damage = 0;
         public int trainTime = 0;
         public float trainedTime = 0;
         public int armyCamp_x = 0;
@@ -89,6 +98,7 @@ public static class Data
         public int target_x = 0;
         public int target_y = 0;
         public bool isPlayer1Unit = true;
+        public bool isDefending = true;
 
         public string serializedPath;
 

@@ -23,7 +23,7 @@ public class HexGridManager : MonoBehaviour
     public Tile player2CastleTile;
 
     public Tile[,] hexGrid;
-    public PathNode[,] pathGrid;
+    public PathNode[,] pathGrid;    
 
     private void Awake()
     {
@@ -68,10 +68,24 @@ public class HexGridManager : MonoBehaviour
         {
             int x_pos = tile.x;
             int y_pos = tile.y;
-            if(hexGrid[x_pos, y_pos].tile.hexType != tile.hexType)
-            {
-                ChangeTileHexType(hexGrid[x_pos, y_pos], (Player.HexType)tile.hexType);
 
+
+            hexGrid[x_pos, y_pos].tile.stonePerSecond = tile.stonePerSecond;
+            hexGrid[x_pos, y_pos].tile.woodPerSecond = tile.woodPerSecond;
+            hexGrid[x_pos, y_pos].tile.foodPerSecond = tile.foodPerSecond;
+            hexGrid[x_pos, y_pos].tile.health = tile.health;
+            hexGrid[x_pos, y_pos].tile.capacity = tile.capacity;
+            hexGrid[x_pos, y_pos].tile.attack = tile.attack;
+            hexGrid[x_pos, y_pos].tile.defense = tile.defense;
+            hexGrid[x_pos, y_pos].tile.isAttacking = tile.isAttacking;
+            hexGrid[x_pos, y_pos].tile.isDefending = tile.isDefending;
+            hexGrid[x_pos, y_pos].tile.isUnderAttack = tile.isUnderAttack;
+
+            hexGrid[x_pos, y_pos].UpdateBuildingTexts();
+
+            if (hexGrid[x_pos, y_pos].tile.hexType != tile.hexType)
+            {
+                ChangeTileHexType(hexGrid[x_pos, y_pos], (Player.HexType)tile.hexType);                
                 if (tile.hexType == (int)Player.HexType.PLAYER1_CASTLE)
                 {
                     if (Player.instance.data.isPlayer1 == 1)
@@ -144,7 +158,15 @@ public class HexGridManager : MonoBehaviour
         float yPos = y * hexHeight * 0.75f;
         return new Vector3(xPos, 0, yPos);
     }
-   
+
+    public Vector3 CalculateUnitPosition(int x, int y)
+    {
+        float horizontalSpacing = hexWidth * Mathf.Sqrt(3) / 2;
+        float xPos = x * horizontalSpacing + (y % 2 == 1 ? horizontalSpacing / 2 : 0);
+        float yPos = y * hexHeight * 0.75f;
+        return new Vector3(xPos, 0.2f, yPos);
+    }
+
 
     public void ChangeTileHexType(Tile hexTile, Player.HexType hexType)
     {

@@ -68,8 +68,7 @@ public class HexGridManager : MonoBehaviour
         {
             int x_pos = tile.x;
             int y_pos = tile.y;
-
-
+            
             hexGrid[x_pos, y_pos].tile.stonePerSecond = tile.stonePerSecond;
             hexGrid[x_pos, y_pos].tile.woodPerSecond = tile.woodPerSecond;
             hexGrid[x_pos, y_pos].tile.foodPerSecond = tile.foodPerSecond;

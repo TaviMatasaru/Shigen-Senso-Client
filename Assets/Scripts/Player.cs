@@ -54,6 +54,8 @@ public class Player : MonoBehaviour
         PLAYER2_SAWMILL = 19,
         PLAYER2_FARM = 20,
         PLAYER2_ARMY_CAMP = 21,
+        PLAYER1_ARMY_CAMP_UNDER_ATTACK = 22,
+        PLAYER2_ARMY_CAMP_UNDER_ATTACK = 23
     }
 
     bool connected = false;
@@ -76,7 +78,7 @@ public class Player : MonoBehaviour
     {
         if (connected)
         {
-            if(timer >= 1)
+            if(timer >= 0.6f)
             {
                 timer = 0;
   

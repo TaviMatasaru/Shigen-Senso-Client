@@ -38,6 +38,9 @@ public static class Data
 
     public class HexTile
     {
+        public long gameID = 0;
+        public long accountID = -1;
+        public long attackerAccountID = -1;
         public int hexType = 0;
         public int level = 1;
         public int x;

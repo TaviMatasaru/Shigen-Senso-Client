@@ -6,6 +6,9 @@ public static class Data
 {
     public class Player
     {
+        public string username = "username";
+
+
         public int gold = 1;
         public int gems = 10;
         public int wood = 10;
@@ -33,6 +36,8 @@ public static class Data
     public class InitializationData
     {
         public long accountID = 0;
+        public string username = "username";
+
         public List<ServerUnit> serverUnits = new List<ServerUnit>();
     }
 

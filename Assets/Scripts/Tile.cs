@@ -161,6 +161,8 @@ public class Tile : MonoBehaviour
                 {
                     if(UI_BuildingOptions.instance.selectingEnemyArmyCamp == true)
                     {
+                        UI_BuildingOptions.instance._attackSelectedEnemyArmyCampText.text = "Attack selected enemy Army Camp?";
+
                         UI_BuildingOptions.instance.selectedUnitsAttack = 0;
                         UI_BuildingOptions.instance.selectedUnits = 0;
 
@@ -174,12 +176,45 @@ public class Tile : MonoBehaviour
                         HexGridManager.Instance.canSelectAnyTile = false;                        
                     }
                 }
+                else if (this.tile.hexType == (int)Player.HexType.PLAYER1_CASTLE)
+                {
+                    UI_BuildingOptions.instance._castleCapacityText.text = this.tile.capacity.ToString() + "/" + "30";
+                    UI_BuildingOptions.instance._castleDefenseText.text = this.tile.defense.ToString();
+                    UI_BuildingOptions.instance.SetStatus(false);
+                    UI_BuildingOptions.instance._castleOptionsElement.SetActive(true);
+                }
+                else if (this.tile.hexType == (int)Player.HexType.PLAYER2_CASTLE)
+                {
+                    if(HexGridManager.Instance.player2ArmyCampCount == 0)
+                    {
+                        if (UI_BuildingOptions.instance.selectingEnemyArmyCamp == true)
+                        {
+                            UI_BuildingOptions.instance._attackSelectedEnemyArmyCampText.text = "Attack enemy Castle?";
+
+                            UI_BuildingOptions.instance.selectedUnitsAttack = 0;
+                            UI_BuildingOptions.instance.selectedUnits = 0;
+
+                            UI_BuildingOptions.instance._yourAttackPowerText.text = UI_BuildingOptions.instance.selectedUnitsAttack.ToString();
+                            UI_BuildingOptions.instance._enemyDefenseText.text = this.tile.defense.ToString();
+                            UI_BuildingOptions.instance.availableUnits = UI_BuildingOptions.instance.attackingArmyCamp.tile.capacity;
+                            UI_BuildingOptions.instance._selectedUnits.text = UI_BuildingOptions.instance.selectedUnits.ToString();
+
+                            UI_BuildingOptions.instance._cancelAttackElement.SetActive(false);
+                            UI_BuildingOptions.instance._launchAttackElement.SetActive(true);
+                            HexGridManager.Instance.canSelectAnyTile = false;
+                        }
+                    }                    
+                }
                 else
                 {
+                    //TO TRY
+                    //UI_BuildingOptions.instance.SetStatus(false);
+
                     UI_BuildingOptions.instance._armyCampElement.SetActive(false);
                     UI_BuildingOptions.instance._buildingElements.SetActive(false);
                     UI_BuildingOptions.instance._castleElement.SetActive(false);
                     UI_BuildingOptions.instance._launchAttackElement.SetActive(false);
+                    UI_BuildingOptions.instance._castleOptionsElement.SetActive(false);                    
                 }                
             }
             else
@@ -197,6 +232,8 @@ public class Tile : MonoBehaviour
                 {
                     if (UI_BuildingOptions.instance.selectingEnemyArmyCamp == true)
                     {
+                        UI_BuildingOptions.instance._attackSelectedEnemyArmyCampText.text = "Attack selected enemy Army Camp?";
+
                         UI_BuildingOptions.instance.selectedUnitsAttack = 0;
                         UI_BuildingOptions.instance.selectedUnits = 0;
 
@@ -210,12 +247,42 @@ public class Tile : MonoBehaviour
                         HexGridManager.Instance.canSelectAnyTile = false;                       
                     }                        
                 }
+                else if (this.tile.hexType == (int)Player.HexType.PLAYER2_CASTLE)
+                {
+                    UI_BuildingOptions.instance._castleCapacityText.text = this.tile.capacity.ToString() + "/" + "30";
+                    UI_BuildingOptions.instance._castleDefenseText.text = this.tile.defense.ToString();
+                    UI_BuildingOptions.instance.SetStatus(false);
+                    UI_BuildingOptions.instance._castleOptionsElement.SetActive(true);
+                }
+                else if (this.tile.hexType == (int)Player.HexType.PLAYER1_CASTLE)
+                {
+                    if (HexGridManager.Instance.player1ArmyCampCount == 0)
+                    {
+                        if (UI_BuildingOptions.instance.selectingEnemyArmyCamp == true)
+                        {
+                            UI_BuildingOptions.instance._attackSelectedEnemyArmyCampText.text = "Attack enemy Castle?";
+
+                            UI_BuildingOptions.instance.selectedUnitsAttack = 0;
+                            UI_BuildingOptions.instance.selectedUnits = 0;
+
+                            UI_BuildingOptions.instance._yourAttackPowerText.text = UI_BuildingOptions.instance.selectedUnitsAttack.ToString();
+                            UI_BuildingOptions.instance._enemyDefenseText.text = this.tile.defense.ToString();
+                            UI_BuildingOptions.instance.availableUnits = UI_BuildingOptions.instance.attackingArmyCamp.tile.capacity;
+                            UI_BuildingOptions.instance._selectedUnits.text = UI_BuildingOptions.instance.selectedUnits.ToString();
+
+                            UI_BuildingOptions.instance._cancelAttackElement.SetActive(false);
+                            UI_BuildingOptions.instance._launchAttackElement.SetActive(true);
+                            HexGridManager.Instance.canSelectAnyTile = false;
+                        }
+                    }
+                }
                 else
                 {
                     UI_BuildingOptions.instance._armyCampElement.SetActive(false);
                     UI_BuildingOptions.instance._buildingElements.SetActive(false);
                     UI_BuildingOptions.instance._castleElement.SetActive(false);
                     UI_BuildingOptions.instance._launchAttackElement.SetActive(false);
+                    UI_BuildingOptions.instance._castleOptionsElement.SetActive(false);
                 }               
             }
         }
@@ -265,7 +332,46 @@ public class Tile : MonoBehaviour
                             UI_BuildingOptions.instance._enemyDefenseText.text = this.tile.defense.ToString();
                         }                        
                     }
-                    break;                   
+                    break;
+
+                case Player.HexType.PLAYER1_CASTLE:
+                    if (Player.instance.data.isPlayer1 == 1)
+                    {
+                        UI_BuildingOptions.instance._capacityText.text = this.tile.capacity.ToString() + "/" + "30";
+                        UI_BuildingOptions.instance._powerText.text = this.tile.attack.ToString();
+                        UI_BuildingOptions.instance._defenseText.text = this.tile.defense.ToString();
+                    }
+                    else
+                    {
+                        if (UI_BuildingOptions.instance.selectingEnemyArmyCamp)
+                        {
+                            UI_BuildingOptions.instance._yourAttackPowerText.text = UI_BuildingOptions.instance.selectedUnitsAttack.ToString();
+                            UI_BuildingOptions.instance._availableUnitsText.text = UI_BuildingOptions.instance.availableUnits.ToString();
+                            UI_BuildingOptions.instance._selectedUnits.text = UI_BuildingOptions.instance.selectedUnits.ToString();
+                            UI_BuildingOptions.instance._enemyDefenseText.text = this.tile.defense.ToString();
+                        }
+                    }
+                    break;
+
+                case Player.HexType.PLAYER2_CASTLE:
+                    if (Player.instance.data.isPlayer1 == 0)
+                    {
+                        UI_BuildingOptions.instance._capacityText.text = this.tile.capacity.ToString() + "/" + "30";
+                        UI_BuildingOptions.instance._powerText.text = this.tile.attack.ToString();
+                        UI_BuildingOptions.instance._defenseText.text = this.tile.defense.ToString();
+                    }
+                    else
+                    {
+                        if (UI_BuildingOptions.instance.selectingEnemyArmyCamp)
+                        {
+                            UI_BuildingOptions.instance._yourAttackPowerText.text = UI_BuildingOptions.instance.selectedUnitsAttack.ToString();
+                            UI_BuildingOptions.instance._availableUnitsText.text = UI_BuildingOptions.instance.availableUnits.ToString();
+                            UI_BuildingOptions.instance._selectedUnits.text = UI_BuildingOptions.instance.selectedUnits.ToString();
+                            UI_BuildingOptions.instance._enemyDefenseText.text = this.tile.defense.ToString();
+                        }
+                    }
+                    break;
+
             }
         }
     }

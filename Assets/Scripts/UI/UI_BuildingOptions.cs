@@ -9,6 +9,7 @@ public class UI_BuildingOptions : MonoBehaviour
 {
     [SerializeField] public GameObject _buildingElements = null;
     [SerializeField] public GameObject _castleElement = null;
+    [SerializeField] public GameObject _castleOptionsElement = null;
     [SerializeField] public GameObject _armyCampElement = null;
     [SerializeField] public GameObject _openArmyCampElement = null;
     [SerializeField] public GameObject _launchAttackElement = null;
@@ -23,7 +24,11 @@ public class UI_BuildingOptions : MonoBehaviour
     [SerializeField] public TextMeshProUGUI _yourAttackPowerText = null;
     [SerializeField] public TextMeshProUGUI _enemyDefenseText = null;
     [SerializeField] public TextMeshProUGUI _availableUnitsText = null;
-    [SerializeField] public TextMeshProUGUI _selectedUnits = null;    
+    [SerializeField] public TextMeshProUGUI _selectedUnits = null;
+    [SerializeField] public TextMeshProUGUI _selectEnemyArmyCampText = null;
+    [SerializeField] public TextMeshProUGUI _attackSelectedEnemyArmyCampText = null;
+    [SerializeField] public TextMeshProUGUI _castleCapacityText = null;
+    [SerializeField] public TextMeshProUGUI _castleDefenseText = null;
 
 
     [SerializeField] public Button _buildCastle = null;
@@ -32,10 +37,12 @@ public class UI_BuildingOptions : MonoBehaviour
     [SerializeField] public Button _buildFarm = null;
 
     [SerializeField] public Button _builArmyCamp = null;
-    [SerializeField] public Button _openArmyCamp = null;
 
     [SerializeField] public Button _trainBarbarianButton = null;
     [SerializeField] public Button _trainArcherButton = null;
+
+    [SerializeField] public Button _trainCastleBarbarianButton = null;
+    [SerializeField] public Button _trainCastleArcherButton = null;
 
     [SerializeField] public Button _attackButton = null;
     [SerializeField] public Button _launchAttackButton = null;
@@ -60,10 +67,13 @@ public class UI_BuildingOptions : MonoBehaviour
         _instance = this;
         _buildingElements.SetActive(false);
         _castleElement.SetActive(false);
+        _castleOptionsElement.SetActive(false);
         _armyCampElement.SetActive(false);
         _openArmyCampElement.SetActive(false);
         _launchAttackElement.SetActive(false);
-        _cancelAttackElement.SetActive(false);
+        _cancelAttackElement.SetActive(false);       
+
+        _selectEnemyArmyCampText.text = "Select an enemy Army Camp";
     }
 
     private void Start()
@@ -72,11 +82,13 @@ public class UI_BuildingOptions : MonoBehaviour
         _buildStonedMine.onClick.AddListener(BuildStoneMineClicked);
         _buildSawmill.onClick.AddListener(BuildSawmillClicked);
         _buildFarm.onClick.AddListener(BuildFarmClicked);
-        _builArmyCamp.onClick.AddListener(BuildArmyCampClicked);
+        _builArmyCamp.onClick.AddListener(BuildArmyCampClicked);       
 
-        _openArmyCamp.onClick.AddListener(OpenArmyCampClicked);
         _trainBarbarianButton.onClick.AddListener(TrainBarbarianClicked);
         _trainArcherButton.onClick.AddListener(TrainArcherClicked);
+
+        _trainCastleBarbarianButton.onClick.AddListener(TrainBarbarianClicked);
+        _trainCastleArcherButton.onClick.AddListener(TrainArcherClicked);
 
         _attackButton.onClick.AddListener(AttackButtonClicked);
         _launchAttackButton.onClick.AddListener(LaunchAttackButtonClicked);
@@ -199,13 +211,7 @@ public class UI_BuildingOptions : MonoBehaviour
 
         Sender.TCP_Send(packet);
     }
-
-
-    public void OpenArmyCampClicked()
-    {
-        _openArmyCampElement.SetActive(false);
-        UI_Train.instance.SetStatus(true);
-    }
+    
 
     public void AttackButtonClicked()
     {
@@ -219,12 +225,30 @@ public class UI_BuildingOptions : MonoBehaviour
 
         if(Player.instance.data.isPlayer1 == 1)
         {
-            HexGridManager.Instance.SelectedTileTypeAllowed = Player.HexType.PLAYER2_ARMY_CAMP;
+            if(HexGridManager.Instance.player2ArmyCampCount == 0)
+            {
+                _selectEnemyArmyCampText.text = "Select the enemy Castle";
+                HexGridManager.Instance.SelectedTileTypeAllowed = Player.HexType.PLAYER2_CASTLE;
+            }
+            else
+            {
+                _selectEnemyArmyCampText.text = "Select an enemy Army Camp";
+                HexGridManager.Instance.SelectedTileTypeAllowed = Player.HexType.PLAYER2_ARMY_CAMP;
+            }            
         }
         else
         {
-            HexGridManager.Instance.SelectedTileTypeAllowed = Player.HexType.PLAYER1_ARMY_CAMP;
-        }
+            if (HexGridManager.Instance.player1ArmyCampCount == 0)
+            {
+                _selectEnemyArmyCampText.text = "Select the enemy Castle";
+                HexGridManager.Instance.SelectedTileTypeAllowed = Player.HexType.PLAYER1_CASTLE;
+            }
+            else
+            {
+                _selectEnemyArmyCampText.text = "Select an enemy Army Camp";
+                HexGridManager.Instance.SelectedTileTypeAllowed = Player.HexType.PLAYER1_ARMY_CAMP;                
+            }
+         }
                 
     }
 
@@ -235,6 +259,7 @@ public class UI_BuildingOptions : MonoBehaviour
 
         HexGridManager.Instance.canSelectAnyTile = true;
     }
+
 
     public void AddUnitButtonClicked()
     {

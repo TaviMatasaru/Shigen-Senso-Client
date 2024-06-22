@@ -13,7 +13,7 @@ public class Player : MonoBehaviour
    
     public enum RequestsID
     {
-        AUTH = 1,
+        LOGIN = 1,
         SYNC = 2,
         NEW_GRID = 3,
         SYNC_GRID = 4,
@@ -27,7 +27,11 @@ public class Player : MonoBehaviour
         SEARCH = 12,
         CANCEL_SEARCH = 13,        
         UNIT_READY = 14,
-        LAUNCH_ATTACK = 15
+        LAUNCH_ATTACK = 15,
+        REGISTER = 16,
+        AUTO_LOGIN = 17,
+        LOGOUT = 18,
+        LEAVE_MATCH = 19
     }
 
     public enum HexType
@@ -55,7 +59,9 @@ public class Player : MonoBehaviour
         PLAYER2_FARM = 20,
         PLAYER2_ARMY_CAMP = 21,
         PLAYER1_ARMY_CAMP_UNDER_ATTACK = 22,
-        PLAYER2_ARMY_CAMP_UNDER_ATTACK = 23
+        PLAYER2_ARMY_CAMP_UNDER_ATTACK = 23,
+        PLAYER1_CASTLE_UNDER_ATTACK = 24,
+        PLAYER2_CASTLE_UNDER_ATTACK = 25
     }
 
     bool connected = false;
@@ -78,7 +84,7 @@ public class Player : MonoBehaviour
     {
         if (connected)
         {
-            if(timer >= 0.6f)
+            if(timer >= 0.8f)
             {
                 timer = 0;
   
@@ -118,10 +124,11 @@ public class Player : MonoBehaviour
     {
         if (successfull)
         {
-            RealtimeNetworking.OnDisconnectedFromServer += DisconnectedFromServer;
-            string device = SystemInfo.deviceUniqueIdentifier + "_TEST_" + DateTime.Now;
+            RealtimeNetworking.OnDisconnectedFromServer += DisconnectedFromServer;                      
+
+            string device = SystemInfo.deviceUniqueIdentifier;
             Packet packet = new Packet();
-            packet.Write((int)RequestsID.AUTH);
+            packet.Write((int)RequestsID.AUTO_LOGIN);
             packet.Write(device);
             Sender.TCP_Send(packet);
         }
@@ -139,20 +146,119 @@ public class Player : MonoBehaviour
 
         switch ((RequestsID)id)
         {
-            case RequestsID.AUTH:
-                string authData = received_packet.ReadString();
-                instance.initializationData = Data.Deserialize<Data.InitializationData>(authData);
+            case RequestsID.AUTO_LOGIN:
+                string autoLoginData = received_packet.ReadString();
 
-                              
-                Packet packetToSend = new Packet();
+                Data.InitializationData autoLoginreceivedInitializationData = Data.Deserialize<Data.InitializationData>(autoLoginData);
+                instance.initializationData.accountID = autoLoginreceivedInitializationData.accountID;
+                instance.initializationData.username = autoLoginreceivedInitializationData.username;
 
-                packetToSend.Write((int)RequestsID.SYNC);           
+                Debug.Log("Account ID-ul clientului primit de la server este: " + instance.initializationData.accountID);
 
-                Sender.TCP_Send(packetToSend);
+                if (instance.initializationData.accountID == -2)
+                {
+                    UI_Main.instance._connectingToServerElements.SetActive(false);
+                    UI_Main.instance._loginElements.SetActive(true);
+                    
+                }
+                else
+                {
+                    UI_Main.instance._menuUsernameText.text = "Hello, " + instance.initializationData.username;
+                    UI_Main.instance._connectingToServerElements.SetActive(false);
+                    UI_Main.instance._menuElements.SetActive(true);
 
-                connected = true;             
+                    connected = true;
+                    timer = 0;
+                    HexGridManager.Instance.ResetGrid();
+                    isFirstGrid = true;
+                    
+                }                                             
+                
+                break;
+
+            case RequestsID.LOGIN:
+                string loginData = received_packet.ReadString();
+
+                Data.InitializationData receivedInitializationData = Data.Deserialize<Data.InitializationData>(loginData);
+                instance.initializationData.accountID = receivedInitializationData.accountID;
+                instance.initializationData.username = receivedInitializationData.username;
+
+                Debug.Log("Account ID-ul clientului primit de la server este: " + instance.initializationData.accountID);
+
+                if (instance.initializationData.accountID == -2)
+                {
+                    UI_Main.instance._loginErrorText.text = "Username or Password is incorrect";
+                    UI_Main.instance._loginPasswordInput.text = "";
+                }
+                else
+                {
+                    if(instance.initializationData.accountID == -3)
+                    {
+                        UI_Main.instance._loginErrorText.text = "User is already online";
+                        UI_Main.instance._loginPasswordInput.text = "";
+                    }
+                    else
+                    {
+                        UI_Main.instance._menuUsernameText.text = "Hello, " + instance.initializationData.username;
+                        UI_Main.instance._menuElements.SetActive(true);
+                        UI_Main.instance._loginElements.SetActive(false);
+
+                        connected = true;
+                        timer = 0;
+                        HexGridManager.Instance.ResetGrid();
+                        isFirstGrid = true;
+                        
+                    }
+                }
+                
+
+                connected = true;
                 timer = 0;
                 break;
+
+            case RequestsID.REGISTER:
+                string registerData = received_packet.ReadString();
+
+                Data.InitializationData registerReceivedInitializationData = Data.Deserialize<Data.InitializationData>(registerData);
+                instance.initializationData.accountID = registerReceivedInitializationData.accountID;
+                instance.initializationData.username = registerReceivedInitializationData.username;
+
+                if (instance.initializationData.accountID == -2)
+                {
+                    UI_Main.instance._registerErrorText.text = "Username not available";
+                    UI_Main.instance._registerPasswordInput.text = "";
+                }
+                else
+                {
+                    UI_Main.instance._menuUsernameText.text = "Hello, " + instance.initializationData.username;
+                    UI_Main.instance._menuElements.SetActive(true);
+                    UI_Main.instance._registerElements.SetActive(false);
+
+                    connected = true;
+                    HexGridManager.Instance.ResetGrid();
+                    isFirstGrid = true;
+                    timer = 0;
+                }
+                break;
+
+            case RequestsID.LOGOUT:
+                {
+                    int logoutResponse = received_packet.ReadInt();
+                    if(logoutResponse == 1)
+                    {
+                        UI_Main.instance._loginErrorText.text = "";
+                        UI_Main.instance._loginUsernameInput.text = "";
+                        UI_Main.instance._loginPasswordInput.text = "";
+
+                        UI_Main.instance._menuElements.SetActive(false);
+                        UI_Main.instance._loginElements.SetActive(true);
+
+                        connected = false;
+                        HexGridManager.Instance.ResetGrid();
+                        isFirstGrid = true;
+                    }
+                    break;
+                }
 
             case RequestsID.SYNC:               
                 string playerData = received_packet.ReadString();
@@ -175,6 +281,7 @@ public class Player : MonoBehaviour
                 {
                     isFirstGrid = false;
                     HexGridManager.Instance.GenerateHexGrid(syncHexGrid);
+                    UI_Main.instance.SetPlayerUIColor(Player.instance.data.isPlayer1);
                     UI_Main.instance._searchingElements.SetActive(false);
                     UI_Main.instance._elements.SetActive(true);
                 }
@@ -343,6 +450,24 @@ public class Player : MonoBehaviour
                         RushSyncRequest();
                         break;
 
+                }
+                break;
+
+            case RequestsID.LEAVE_MATCH:
+                Debug.Log("Am primit LEAVE MATCH");
+                int leaveMatchResponse = received_packet.ReadInt();
+                if(leaveMatchResponse == 1)
+                {
+                    UI_Shop.instance._elements.SetActive(false);
+                    UI_Shop.instance._endGameElements.SetActive(false);
+                    UI_Main.instance._menuElements.SetActive(true);
+
+                    HexGridManager.Instance.ResetGrid();
+                    isFirstGrid = true;                    
+                }
+                else
+                {
+                    Debug.Log("Am primit alt raspuns de la LEAVE MATCH");
                 }
                 break;
         }

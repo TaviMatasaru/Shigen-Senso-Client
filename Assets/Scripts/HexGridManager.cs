@@ -21,6 +21,13 @@ public class HexGridManager : MonoBehaviour
     public bool gridGenerated = false;
     public Tile player1CastleTile;
     public Tile player2CastleTile;
+    private bool player1CastleBuild = false;
+    private bool player2CastleBuild = false;
+
+    public int player1ArmyCampCount = 0;
+    public int player2ArmyCampCount = 0;
+    bool player1CastleFound = false;
+    bool player2CastleFound = false;
 
     public Tile[,] hexGrid;
     public PathNode[,] pathGrid;    
@@ -33,7 +40,7 @@ public class HexGridManager : MonoBehaviour
             return;
         }
         Instance = this;
-        DontDestroyOnLoad(this.gameObject);   
+        //DontDestroyOnLoad(this.gameObject);   
     }
 
 
@@ -41,6 +48,9 @@ public class HexGridManager : MonoBehaviour
     {
         hexGrid = new Tile[grid.rows, grid.columns];
         pathGrid = new PathNode[grid.rows, grid.columns];
+
+        height = grid.rows;
+        width = grid.columns;
 
         foreach (Data.HexTile tile in grid.hexTiles)
         {
@@ -62,47 +72,163 @@ public class HexGridManager : MonoBehaviour
         gridGenerated = true;
     }
 
-    public void SyncHexGrid(Data.HexGrid grid)
+    public void ResetGrid()
     {
-        foreach(Data.HexTile tile in grid.hexTiles)
+        if (hexGrid != null)
         {
-            int x_pos = tile.x;
-            int y_pos = tile.y;
-            
-            hexGrid[x_pos, y_pos].tile.stonePerSecond = tile.stonePerSecond;
-            hexGrid[x_pos, y_pos].tile.woodPerSecond = tile.woodPerSecond;
-            hexGrid[x_pos, y_pos].tile.foodPerSecond = tile.foodPerSecond;
-            hexGrid[x_pos, y_pos].tile.health = tile.health;
-            hexGrid[x_pos, y_pos].tile.capacity = tile.capacity;
-            hexGrid[x_pos, y_pos].tile.attack = tile.attack;
-            hexGrid[x_pos, y_pos].tile.defense = tile.defense;
-            hexGrid[x_pos, y_pos].tile.isAttacking = tile.isAttacking;
-            hexGrid[x_pos, y_pos].tile.isDefending = tile.isDefending;
-            hexGrid[x_pos, y_pos].tile.isUnderAttack = tile.isUnderAttack;
-
-            hexGrid[x_pos, y_pos].UpdateBuildingTexts();
-
-            if (hexGrid[x_pos, y_pos].tile.hexType != tile.hexType)
+            for (int x = 0; x < hexGrid.GetLength(0); x++)
             {
-                ChangeTileHexType(hexGrid[x_pos, y_pos], (Player.HexType)tile.hexType);                
-                if (tile.hexType == (int)Player.HexType.PLAYER1_CASTLE)
-                {
-                    if (Player.instance.data.isPlayer1 == 1)
+                for (int y = 0; y < hexGrid.GetLength(1); y++)
+                {                    
+                    if (hexGrid[x, y] != null)
                     {
-                        player1CastleTile = hexGrid[x_pos, y_pos];
+                        Destroy(hexGrid[x, y].gameObject);
+                        hexGrid[x, y] = null;
                     }
                     
-                }
-                if (tile.hexType == (int)Player.HexType.PLAYER2_CASTLE)
-                {
-                    if (Player.instance.data.isPlayer1 == 0)
-                    {
-                        player2CastleTile = hexGrid[x_pos, y_pos];
-                    }
-
+                    pathGrid[x, y] = null;
                 }
             }
         }
+
+        hexGrid = new Tile[width, height];
+        pathGrid = new PathNode[width, height];
+
+        gridGenerated = false;  // Resetare flag dacă este folosit
+    }
+
+
+    public void SyncHexGrid(Data.HexGrid grid)
+    {
+        player1ArmyCampCount = 0;
+        player2ArmyCampCount = 0;
+
+        player1CastleFound = false;
+        player2CastleFound = false;
+
+        if(gridGenerated == true)
+        {
+            foreach (Data.HexTile tile in grid.hexTiles)
+            {
+                int x_pos = tile.x;
+                int y_pos = tile.y;
+
+                hexGrid[x_pos, y_pos].tile.stonePerSecond = tile.stonePerSecond;
+                hexGrid[x_pos, y_pos].tile.woodPerSecond = tile.woodPerSecond;
+                hexGrid[x_pos, y_pos].tile.foodPerSecond = tile.foodPerSecond;
+                hexGrid[x_pos, y_pos].tile.health = tile.health;
+                hexGrid[x_pos, y_pos].tile.capacity = tile.capacity;
+                hexGrid[x_pos, y_pos].tile.attack = tile.attack;
+                hexGrid[x_pos, y_pos].tile.defense = tile.defense;
+                hexGrid[x_pos, y_pos].tile.isAttacking = tile.isAttacking;
+                hexGrid[x_pos, y_pos].tile.isDefending = tile.isDefending;
+                hexGrid[x_pos, y_pos].tile.isUnderAttack = tile.isUnderAttack;
+
+                hexGrid[x_pos, y_pos].UpdateBuildingTexts();
+
+                if (tile.hexType == (int)Player.HexType.PLAYER1_ARMY_CAMP)
+                {
+                    player1ArmyCampCount += 1;
+                }
+
+                if (tile.hexType == (int)Player.HexType.PLAYER2_ARMY_CAMP)
+                {
+                    player2ArmyCampCount += 1;
+                }
+
+                if (hexGrid[x_pos, y_pos].tile.hexType != tile.hexType)
+                {
+                    ChangeTileHexType(hexGrid[x_pos, y_pos], (Player.HexType)tile.hexType);
+                    if (tile.hexType == (int)Player.HexType.PLAYER1_CASTLE)
+                    {
+                        if (Player.instance.data.isPlayer1 == 1)
+                        {
+                            player1CastleTile = hexGrid[x_pos, y_pos];
+                            player1CastleBuild = true;
+                        }
+
+                    }
+                    if (tile.hexType == (int)Player.HexType.PLAYER2_CASTLE)
+                    {
+                        if (Player.instance.data.isPlayer1 == 0)
+                        {
+                            player2CastleTile = hexGrid[x_pos, y_pos];
+                            player2CastleBuild = true;
+                        }
+
+                    }
+                }
+
+                if (tile.hexType == (int)Player.HexType.PLAYER1_CASTLE)
+                {
+                    player1CastleBuild = true;
+                    player1CastleFound = true;
+                }
+                if (tile.hexType == (int)Player.HexType.PLAYER2_CASTLE)
+                {
+                    player2CastleBuild = true;
+                    player2CastleFound = true;
+                }
+            }
+
+            if (player1CastleBuild == true && player2CastleBuild == true)
+            {
+                Debug.Log("Castelul P1 si Castelul P2 este construit");
+                if (player1CastleFound == false)
+                {
+                    Debug.Log("Castelul P1 nu a fost gasit");
+                    if (Player.instance.data.isPlayer1 == 1)
+                    {
+                        UI_Main.instance._elements.SetActive(false);
+                        UI_BuildingOptions.instance.SetStatus(false);
+                        UI_Shop.instance._elements.SetActive(false);
+
+                        UI_Shop.instance._matchResultText.text = "YOU LOST";
+                        UI_Shop.instance._resultReasonText.text = "Your Castle was destroyed";
+
+                        UI_Shop.instance._endGameElements.SetActive(true);
+                    }
+                    else
+                    {
+                        UI_Main.instance._elements.SetActive(false);
+                        UI_BuildingOptions.instance.SetStatus(false);
+                        UI_Shop.instance._elements.SetActive(false);
+
+                        UI_Shop.instance._matchResultText.text = "YOU WON";
+                        UI_Shop.instance._resultReasonText.text = "Enemy Castle was Destroyed";
+
+                        UI_Shop.instance._endGameElements.SetActive(true);
+                    }
+                }
+
+                if (player2CastleFound == false)
+                {
+                    Debug.Log("Castelul P2 nu a fost gasit");
+                    if (Player.instance.data.isPlayer1 == 0)
+                    {
+                        UI_Main.instance._elements.SetActive(false);
+                        UI_BuildingOptions.instance.SetStatus(false);
+                        UI_Shop.instance._elements.SetActive(false);
+
+                        UI_Shop.instance._matchResultText.text = "YOU LOST";
+                        UI_Shop.instance._resultReasonText.text = "Your Castle was destroyed";
+
+                        UI_Shop.instance._endGameElements.SetActive(true);
+                    }
+                    else
+                    {
+                        UI_Main.instance._elements.SetActive(false);
+                        UI_BuildingOptions.instance.SetStatus(false);
+                        UI_Shop.instance._elements.SetActive(false);
+
+                        UI_Shop.instance._matchResultText.text = "YOU WON";
+                        UI_Shop.instance._resultReasonText.text = "Enemy Castle was Destroyed";
+
+                        UI_Shop.instance._endGameElements.SetActive(true);
+                    }
+                }
+            }
+        }                
     }
 
      

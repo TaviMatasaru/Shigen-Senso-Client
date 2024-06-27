@@ -36,11 +36,11 @@ public class HexGridManager : MonoBehaviour
     {
         if (Instance != null && Instance != this)
         {
-            Destroy(this.gameObject); // Ensures that there aren't multiple instances
+            Destroy(this.gameObject);
             return;
         }
         Instance = this;
-        //DontDestroyOnLoad(this.gameObject);   
+        DontDestroyOnLoad(this.gameObject);
     }
 
 
@@ -94,7 +94,7 @@ public class HexGridManager : MonoBehaviour
         hexGrid = new Tile[width, height];
         pathGrid = new PathNode[width, height];
 
-        gridGenerated = false;  // Resetare flag dacă este folosit
+        gridGenerated = false; 
     }
 
 
@@ -171,63 +171,60 @@ public class HexGridManager : MonoBehaviour
                 }
             }
 
-            if (player1CastleBuild == true && player2CastleBuild == true)
-            {
-                Debug.Log("Castelul P1 si Castelul P2 este construit");
-                if (player1CastleFound == false)
-                {
-                    Debug.Log("Castelul P1 nu a fost gasit");
-                    if (Player.instance.data.isPlayer1 == 1)
-                    {
-                        UI_Main.instance._elements.SetActive(false);
-                        UI_BuildingOptions.instance.SetStatus(false);
-                        UI_Shop.instance._elements.SetActive(false);
+            //if (player1CastleBuild == true && player2CastleBuild == true)
+            //{               
+            //    if (player1CastleFound == false)
+            //    {                    
+            //        if (Player.instance.data.isPlayer1 == 1)
+            //        {
+            //            UI_Main.instance._elements.SetActive(false);
+            //            UI_BuildingOptions.instance.SetStatus(false);
+            //            UI_InGameMenu.instance._elements.SetActive(false);
 
-                        UI_Shop.instance._matchResultText.text = "YOU LOST";
-                        UI_Shop.instance._resultReasonText.text = "Your Castle was destroyed";
+            //            UI_InGameMenu.instance._matchResultText.text = "YOU LOST";
+            //            UI_InGameMenu.instance._resultReasonText.text = "Your Castle was destroyed";
 
-                        UI_Shop.instance._endGameElements.SetActive(true);
-                    }
-                    else
-                    {
-                        UI_Main.instance._elements.SetActive(false);
-                        UI_BuildingOptions.instance.SetStatus(false);
-                        UI_Shop.instance._elements.SetActive(false);
+            //            UI_InGameMenu.instance._endGameElements.SetActive(true);
+            //        }
+            //        else
+            //        {
+            //            UI_Main.instance._elements.SetActive(false);
+            //            UI_BuildingOptions.instance.SetStatus(false);
+            //            UI_InGameMenu.instance._elements.SetActive(false);
 
-                        UI_Shop.instance._matchResultText.text = "YOU WON";
-                        UI_Shop.instance._resultReasonText.text = "Enemy Castle was Destroyed";
+            //            UI_InGameMenu.instance._matchResultText.text = "YOU WON";
+            //            UI_InGameMenu.instance._resultReasonText.text = "Enemy Castle was Destroyed";
 
-                        UI_Shop.instance._endGameElements.SetActive(true);
-                    }
-                }
+            //            UI_InGameMenu.instance._endGameElements.SetActive(true);
+            //        }
+            //    }
 
-                if (player2CastleFound == false)
-                {
-                    Debug.Log("Castelul P2 nu a fost gasit");
-                    if (Player.instance.data.isPlayer1 == 0)
-                    {
-                        UI_Main.instance._elements.SetActive(false);
-                        UI_BuildingOptions.instance.SetStatus(false);
-                        UI_Shop.instance._elements.SetActive(false);
+            //    if (player2CastleFound == false)
+            //    {                    
+            //        if (Player.instance.data.isPlayer1 == 0)
+            //        {
+            //            UI_Main.instance._elements.SetActive(false);
+            //            UI_BuildingOptions.instance.SetStatus(false);
+            //            UI_InGameMenu.instance._elements.SetActive(false);
 
-                        UI_Shop.instance._matchResultText.text = "YOU LOST";
-                        UI_Shop.instance._resultReasonText.text = "Your Castle was destroyed";
+            //            UI_InGameMenu.instance._matchResultText.text = "YOU LOST";
+            //            UI_InGameMenu.instance._resultReasonText.text = "Your Castle was destroyed";
 
-                        UI_Shop.instance._endGameElements.SetActive(true);
-                    }
-                    else
-                    {
-                        UI_Main.instance._elements.SetActive(false);
-                        UI_BuildingOptions.instance.SetStatus(false);
-                        UI_Shop.instance._elements.SetActive(false);
+            //            UI_InGameMenu.instance._endGameElements.SetActive(true);
+            //        }
+            //        else
+            //        {
+            //            UI_Main.instance._elements.SetActive(false);
+            //            UI_BuildingOptions.instance.SetStatus(false);
+            //            UI_InGameMenu.instance._elements.SetActive(false);
 
-                        UI_Shop.instance._matchResultText.text = "YOU WON";
-                        UI_Shop.instance._resultReasonText.text = "Enemy Castle was Destroyed";
+            //            UI_InGameMenu.instance._matchResultText.text = "YOU WON";
+            //            UI_InGameMenu.instance._resultReasonText.text = "Enemy Castle was Destroyed";
 
-                        UI_Shop.instance._endGameElements.SetActive(true);
-                    }
-                }
-            }
+            //            UI_InGameMenu.instance._endGameElements.SetActive(true);
+            //        }
+            //    }
+            //}
         }                
     }
 
@@ -436,8 +433,7 @@ public class HexGridManager : MonoBehaviour
         if (centerHexTile.tile.y % 2 != 0)
         {
             foreach (Vector2Int direction in evenDirections)
-            {
-                //currentPosition = centerHexTile._gridPosition;
+            {             
                 currentPosition = new Vector2Int(centerHexTile.tile.x, centerHexTile.tile.y);
                 currentPosition += direction;
                 if (currentPosition.x >= 0 && currentPosition.x < width && currentPosition.y >= 0 && currentPosition.y < height)
@@ -453,8 +449,7 @@ public class HexGridManager : MonoBehaviour
         else
         {
             foreach (Vector2Int direction in oddDirections)
-            {
-                //currentPosition = centerHexTile._gridPosition;
+            {                
                 currentPosition = new Vector2Int(centerHexTile.tile.x, centerHexTile.tile.y);
                 currentPosition += direction;
                 if (currentPosition.x >= 0 && currentPosition.x < width && currentPosition.y >= 0 && currentPosition.y < height)

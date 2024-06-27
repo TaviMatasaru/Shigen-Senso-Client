@@ -29,6 +29,7 @@ public static class Data
         public long gameID = 0;
         public int isPlayer1 = 0;
 
+        public GameData game = new GameData();
 
         public List<Unit> units = new List<Unit>();        
     }
@@ -36,10 +37,9 @@ public static class Data
     public class InitializationData
     {
         public long accountID = 0;
-        public string username = "username";
+        public string username = "username";       
+    }   
 
-        public List<ServerUnit> serverUnits = new List<ServerUnit>();
-    }
 
     public class HexTile
     {
@@ -78,6 +78,18 @@ public static class Data
         public List<HexTile> hexTiles = new List<HexTile>();
     }
 
+    public class PathNode
+    {
+        public HexTile tile = new HexTile();
+        public int gCost = 0; // Cost from start node
+        public int hCost = 0; // Heuristic cost to end node
+        public int FCost => gCost + hCost; // Total cost
+        public PathNode cameFromNode = new PathNode(); // To track the path
+
+    }
+
+
+
     public enum UnitID
     {
         barbarian,
@@ -112,25 +124,43 @@ public static class Data
 
     }
 
-    public class ServerUnit
+
+    public enum PlayerStatus
     {
-        public UnitID id = UnitID.barbarian;
-        public int level = 0;
-        public int requiredFood = 0;
-        public int housing = 1;
-        public int health = 0;
-        public int trainTime = 0;
+        IN_GAME = 0,
+        LEFT = 1,
+        DISCONNECTED = 2
     }
 
-
-    public class PathNode
+    public enum GameResultID
     {
-        public HexTile tile = new HexTile();
-        public int gCost = 0; // Cost from start node
-        public int hCost = 0; // Heuristic cost to end node
-        public int FCost => gCost + hCost; // Total cost
-        public PathNode cameFromNode = new PathNode(); // To track the path
-        
+        NOT_OVER = 0,
+        P1_WON = 1,
+        P2_WON = 2,
+        P1_LEFT = 3,
+        P2_LEFT = 4
+    }
+
+    public class GameData
+    {
+        public long gameID = -1;
+        public long player1AccountID = -1;
+        public long player2AccountID = -1;
+        public GameResultID gameResult = 0;
+        public PlayerStatus player1Status = 0;
+        public PlayerStatus player2Status = 0;
+    }
+
+    public class Game
+    {
+        public string player1_username = "";
+        public string player2_username = "";
+        public int player1_victories = 0;
+        public int player2_victories = 0;
+        public int player1_rank = 0;
+        public int player2_rank = 0;
+
+        public GameData gameData = new GameData();
     }
 
 

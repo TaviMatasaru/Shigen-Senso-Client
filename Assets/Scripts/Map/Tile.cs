@@ -32,9 +32,7 @@ public class Tile : MonoBehaviour
     public void Select()
     {
         transform.localScale = _originalScale * 1.3f;
-        transform.position = new Vector3(_originalPosition.x, _originalPosition.y + 0.15f, _originalPosition.z);
-
-
+        transform.position = new Vector3(_originalPosition.x, _originalPosition.y + 0.15f, _originalPosition.z);        
 
         if(this.tile.hexType == (int)Player.HexType.FREE_LAND)
         {

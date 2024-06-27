@@ -13,7 +13,12 @@ public class UI_Main : MonoBehaviour
     [SerializeField] public GameObject _elements = null;
     [SerializeField] public GameObject _menuElements = null;
     [SerializeField] public GameObject _searchingElements = null;
-    [SerializeField] public GameObject _connectingToServerElements = null;    
+    [SerializeField] public GameObject _connectingToServerElements = null;
+
+    [SerializeField] public TextMeshProUGUI _opponentNameText = null;
+    [SerializeField] public TextMeshProUGUI _opponentVictoriesText = null;
+    [SerializeField] public TextMeshProUGUI _opponentRankText = null;
+
 
     [SerializeField] public TextMeshProUGUI _goldText = null;
     [SerializeField] public TextMeshProUGUI _gemsText = null;
@@ -62,6 +67,9 @@ public class UI_Main : MonoBehaviour
 
         _loginErrorText.text = "";
         _registerErrorText.text = "";
+        _loginPasswordInput.contentType = TMP_InputField.ContentType.Password;
+        _registerPasswordInput.contentType = TMP_InputField.ContentType.Password;
+        _registerRetypePasswordInput.contentType = TMP_InputField.ContentType.Password;
 
         _connectingToServerElements.SetActive(true);
         _loginElements.SetActive(false);
@@ -167,7 +175,7 @@ public class UI_Main : MonoBehaviour
     private void OpenGameMenuClicked()
     {
         SetStatus(false);
-        UI_Shop.instance.SetStatus(true);
+        UI_InGameMenu.instance.SetStatus(true);
         UI_BuildingOptions.instance.SetStatus(false);
     }
 
@@ -204,12 +212,12 @@ public class UI_Main : MonoBehaviour
         foreach(Image image in PlayerColorImages)
         {
             if (isPlayer1 == 1)
-            {
-                image.color = new Color(255 / 255f, 247 / 255f, 120 / 255f, 1f); // yellow
+            {              
+                image.color =  new Color32(255, 247, 120, 140); // yellow
             }
             else
-            {
-                image.color = new Color(148 / 255f, 197 / 255f, 255 / 255f, 1f); // blue
+            {                
+                image.color = new Color32(148, 197, 255, 140); // blue
             }
         }
         

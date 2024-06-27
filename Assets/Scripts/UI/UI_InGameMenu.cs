@@ -5,7 +5,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class UI_Shop : MonoBehaviour
+public class UI_InGameMenu : MonoBehaviour
 {
     [SerializeField] public GameObject _elements = null;
     [SerializeField] public GameObject _endGameElements = null;
@@ -23,7 +23,7 @@ public class UI_Shop : MonoBehaviour
     [SerializeField] private Button _endExitGameButton = null;
 
 
-    private static UI_Shop _instance = null; public static UI_Shop instance { get { return _instance; } }
+    private static UI_InGameMenu _instance = null; public static UI_InGameMenu instance { get { return _instance; } }
 
     private void Awake()
     {

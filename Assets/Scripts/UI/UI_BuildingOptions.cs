@@ -18,7 +18,6 @@ public class UI_BuildingOptions : MonoBehaviour
 
 
     [SerializeField] public TextMeshProUGUI _capacityText = null;
-    //[SerializeField] public TextMeshProUGUI _maxCapacityText = null; TODO: if have time
     [SerializeField] public TextMeshProUGUI _powerText = null;
     [SerializeField] public TextMeshProUGUI _defenseText = null;
     [SerializeField] public TextMeshProUGUI _yourAttackPowerText = null;
@@ -293,9 +292,7 @@ public class UI_BuildingOptions : MonoBehaviour
         packet.Write(attackingArmyCamp.tile.y);
         packet.Write(HexGridManager.Instance.GetCurrentlySelectedTile().tile.x);
         packet.Write(HexGridManager.Instance.GetCurrentlySelectedTile().tile.y);
-        Sender.TCP_Send(packet);
-
-        //TODO: send the LAUNCH_ATTACK request
+        Sender.TCP_Send(packet);       
 
         selectingEnemyArmyCamp = false;
         _launchAttackElement.SetActive(false);

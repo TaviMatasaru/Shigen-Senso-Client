@@ -7,6 +7,8 @@ using System;
 public class Player : MonoBehaviour
 {
     public Data.Player data = new Data.Player();
+    public Data.Game game = new Data.Game();
+
     private static Player _instance = null; public static Player instance { get { return _instance; } }
 
     public Data.InitializationData initializationData = new Data.InitializationData();
@@ -31,7 +33,8 @@ public class Player : MonoBehaviour
         REGISTER = 16,
         AUTO_LOGIN = 17,
         LOGOUT = 18,
-        LEAVE_MATCH = 19
+        LEAVE_MATCH = 19,
+        SYNC_GAME = 20
     }
 
     public enum HexType
@@ -84,19 +87,24 @@ public class Player : MonoBehaviour
     {
         if (connected)
         {
-            if(timer >= 0.8f)
+            if(timer >= 1f)
             {
                 timer = 0;
   
                 if(instance.data.inGame == 1)
-                {
+                {                    
+                    Packet SyncPlayerPacket = new Packet();
+                    SyncPlayerPacket.Write((int)RequestsID.SYNC);
+                    Sender.TCP_Send(SyncPlayerPacket);
+
                     Packet SyncGridPacket = new Packet();
                     SyncGridPacket.Write((int)RequestsID.SYNC_GRID);
                     Sender.TCP_Send(SyncGridPacket);
 
-                    Packet SyncPlayerPacket = new Packet();
-                    SyncPlayerPacket.Write((int)RequestsID.SYNC);
-                    Sender.TCP_Send(SyncPlayerPacket);                    
+                    Packet SyncGamePacket = new Packet();
+                    SyncGamePacket.Write((int)RequestsID.SYNC_GAME);
+                    SyncGamePacket.Write(instance.data.gameID);
+                    Sender.TCP_Send(SyncGamePacket);
 
                 }
                 else
@@ -152,9 +160,7 @@ public class Player : MonoBehaviour
                 Data.InitializationData autoLoginreceivedInitializationData = Data.Deserialize<Data.InitializationData>(autoLoginData);
                 instance.initializationData.accountID = autoLoginreceivedInitializationData.accountID;
                 instance.initializationData.username = autoLoginreceivedInitializationData.username;
-
-                Debug.Log("Account ID-ul clientului primit de la server este: " + instance.initializationData.accountID);
-
+              
                 if (instance.initializationData.accountID == -2)
                 {
                     UI_Main.instance._connectingToServerElements.SetActive(false);
@@ -182,8 +188,7 @@ public class Player : MonoBehaviour
                 Data.InitializationData receivedInitializationData = Data.Deserialize<Data.InitializationData>(loginData);
                 instance.initializationData.accountID = receivedInitializationData.accountID;
                 instance.initializationData.username = receivedInitializationData.username;
-
-                Debug.Log("Account ID-ul clientului primit de la server este: " + instance.initializationData.accountID);
+              
 
                 if (instance.initializationData.accountID == -2)
                 {
@@ -453,13 +458,12 @@ public class Player : MonoBehaviour
                 }
                 break;
 
-            case RequestsID.LEAVE_MATCH:
-                Debug.Log("Am primit LEAVE MATCH");
+            case RequestsID.LEAVE_MATCH:               
                 int leaveMatchResponse = received_packet.ReadInt();
                 if(leaveMatchResponse == 1)
                 {
-                    UI_Shop.instance._elements.SetActive(false);
-                    UI_Shop.instance._endGameElements.SetActive(false);
+                    UI_InGameMenu.instance._elements.SetActive(false);
+                    UI_InGameMenu.instance._endGameElements.SetActive(false);
                     UI_Main.instance._menuElements.SetActive(true);
 
                     HexGridManager.Instance.ResetGrid();
@@ -467,8 +471,15 @@ public class Player : MonoBehaviour
                 }
                 else
                 {
-                    Debug.Log("Am primit alt raspuns de la LEAVE MATCH");
+                    Debug.Log("Unknown response from LEAVE_MATCH");
                 }
+                break;
+
+            case RequestsID.SYNC_GAME:
+                string serilisedGame = received_packet.ReadString();
+                Data.Game gameData = Data.Deserialize<Data.Game>(serilisedGame);
+                SyncGameData(gameData);
+
                 break;
         }
 
@@ -499,7 +510,124 @@ public class Player : MonoBehaviour
         instance.data.inGame = player.inGame;
         instance.data.gameID = player.gameID;
         instance.data.isPlayer1 = player.isPlayer1;         
-}
+    }
+
+    private void SyncGameData(Data.Game gameData)
+    {
+        game.player1_username = gameData.player1_username;
+        game.player2_username = gameData.player2_username;
+        game.player1_victories = gameData.player1_victories;
+        game.player2_victories = gameData.player2_victories;
+        game.player1_rank = gameData.player1_rank;
+        game.player2_rank = gameData.player2_rank;
+
+        game.gameData = gameData.gameData;
+     
+        if(data.isPlayer1 == 1)
+        {
+            UI_Main.instance._opponentNameText.text = game.player2_username;
+            UI_Main.instance._opponentVictoriesText.text = game.player2_victories.ToString();
+            UI_Main.instance._opponentRankText.text = game.player2_rank.ToString();
+
+            if(game.gameData.player2Status == Data.PlayerStatus.DISCONNECTED)
+            {
+                UI_Main.instance._opponentNameText.color = Color.red;
+            }
+        }
+        else
+        {
+            UI_Main.instance._opponentNameText.text = game.player1_username;
+            UI_Main.instance._opponentVictoriesText.text = game.player1_victories.ToString();
+            UI_Main.instance._opponentRankText.text = game.player1_rank.ToString();
+
+            if (game.gameData.player1Status == Data.PlayerStatus.DISCONNECTED)
+            {
+                UI_Main.instance._opponentNameText.color = Color.red;
+            }
+        }
+
+
+        //TODO : result check to update UI
+
+        switch (game.gameData.gameResult)
+        {
+            case Data.GameResultID.P1_WON:
+                UI_Main.instance._elements.SetActive(false);
+                UI_BuildingOptions.instance.SetStatus(false);
+                UI_InGameMenu.instance._elements.SetActive(false);
+                if (data.isPlayer1 == 1)
+                {                   
+                    UI_InGameMenu.instance._matchResultText.text = "YOU WON";
+                    UI_InGameMenu.instance._resultReasonText.text = "Enemy Castle was Destroyed";                   
+                }
+                else
+                {                   
+                    UI_InGameMenu.instance._matchResultText.text = "YOU LOST";
+                    UI_InGameMenu.instance._resultReasonText.text = "Your Castle was destroyed";                    
+                }
+                UI_InGameMenu.instance._endGameElements.SetActive(true);
+                break;
+
+            case Data.GameResultID.P2_WON:
+                UI_Main.instance._elements.SetActive(false);
+                UI_BuildingOptions.instance.SetStatus(false);
+                UI_InGameMenu.instance._elements.SetActive(false);
+                if (data.isPlayer1 == 0)
+                {                    
+                    UI_InGameMenu.instance._matchResultText.text = "YOU WON";
+                    UI_InGameMenu.instance._resultReasonText.text = "Enemy Castle was Destroyed";                   
+                }
+                else
+                {                    
+                    UI_InGameMenu.instance._matchResultText.text = "YOU LOST";
+                    UI_InGameMenu.instance._resultReasonText.text = "Your Castle was destroyed";                    
+                }
+                UI_InGameMenu.instance._endGameElements.SetActive(true);
+                break;
+
+            case Data.GameResultID.P1_LEFT:
+                UI_Main.instance._elements.SetActive(false);
+                UI_BuildingOptions.instance.SetStatus(false);
+                UI_InGameMenu.instance._elements.SetActive(false);
+                if (data.isPlayer1 == 0)
+                {
+                    UI_InGameMenu.instance._matchResultText.text = "YOU WON";
+                    UI_InGameMenu.instance._resultReasonText.text = "Enemy left the match";
+                }                
+                UI_InGameMenu.instance._endGameElements.SetActive(true);
+                break;
+
+            case Data.GameResultID.P2_LEFT:
+                UI_Main.instance._elements.SetActive(false);
+                UI_BuildingOptions.instance.SetStatus(false);
+                UI_InGameMenu.instance._elements.SetActive(false);
+                if (data.isPlayer1 == 1)
+                {
+                    UI_InGameMenu.instance._matchResultText.text = "YOU WON";
+                    UI_InGameMenu.instance._resultReasonText.text = "Enemy left the match";
+                }
+                UI_InGameMenu.instance._endGameElements.SetActive(true);
+                break;
+        }
+
+
+
+
+        if(game.gameData.gameResult == Data.GameResultID.P1_WON)
+        {
+            if(data.isPlayer1 == 1)
+            {
+                UI_Main.instance._elements.SetActive(false);
+                UI_BuildingOptions.instance.SetStatus(false);
+                UI_InGameMenu.instance._elements.SetActive(false);
+
+                UI_InGameMenu.instance._matchResultText.text = "YOU WON";
+                UI_InGameMenu.instance._resultReasonText.text = "Enemy Castle was Destroyed";
+
+                UI_InGameMenu.instance._endGameElements.SetActive(true);
+            }
+        }
+    }
 
     private void RushSyncRequest()
     {

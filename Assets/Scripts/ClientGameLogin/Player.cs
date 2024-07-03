@@ -67,8 +67,10 @@ public class Player : MonoBehaviour
         PLAYER2_CASTLE_UNDER_ATTACK = 25
     }
 
-    bool connected = false;
-    bool isFirstGrid = true;
+    public bool connected = false;
+    public bool isFirstGrid = true;
+    public bool isGameOver = false;
+    
     private double timer;
 
     public void Start()
@@ -87,32 +89,13 @@ public class Player : MonoBehaviour
     {
         if (connected)
         {
-            if(timer >= 1f)
+            if(timer >= 1.3f)
             {
                 timer = 0;
-  
-                if(instance.data.inGame == 1)
-                {                    
-                    Packet SyncPlayerPacket = new Packet();
-                    SyncPlayerPacket.Write((int)RequestsID.SYNC);
-                    Sender.TCP_Send(SyncPlayerPacket);
-
-                    Packet SyncGridPacket = new Packet();
-                    SyncGridPacket.Write((int)RequestsID.SYNC_GRID);
-                    Sender.TCP_Send(SyncGridPacket);
-
-                    Packet SyncGamePacket = new Packet();
-                    SyncGamePacket.Write((int)RequestsID.SYNC_GAME);
-                    SyncGamePacket.Write(instance.data.gameID);
-                    Sender.TCP_Send(SyncGamePacket);
-
-                }
-                else
-                {
-                    Packet SyncPlayerPacket = new Packet();
-                    SyncPlayerPacket.Write((int)RequestsID.SYNC);
-                    Sender.TCP_Send(SyncPlayerPacket);
-                }
+                                              
+                Packet SyncPlayerPacket = new Packet();
+                SyncPlayerPacket.Write((int)RequestsID.SYNC);
+                Sender.TCP_Send(SyncPlayerPacket);                
             }
             else
             {
@@ -170,6 +153,8 @@ public class Player : MonoBehaviour
                 else
                 {
                     UI_Main.instance._menuUsernameText.text = "Hello, " + instance.initializationData.username;
+                    UI_Main.instance._yourVictoriesText.text = instance.data.victories.ToString();
+                    UI_Main.instance._yourRankText.text = instance.data.rank.ToString();
                     UI_Main.instance._connectingToServerElements.SetActive(false);
                     UI_Main.instance._menuElements.SetActive(true);
 
@@ -205,6 +190,8 @@ public class Player : MonoBehaviour
                     else
                     {
                         UI_Main.instance._menuUsernameText.text = "Hello, " + instance.initializationData.username;
+                        UI_Main.instance._yourVictoriesText.text = instance.data.victories.ToString();
+                        UI_Main.instance._yourRankText.text = instance.data.rank.ToString();
                         UI_Main.instance._menuElements.SetActive(true);
                         UI_Main.instance._loginElements.SetActive(false);
 
@@ -236,6 +223,8 @@ public class Player : MonoBehaviour
                 else
                 {
                     UI_Main.instance._menuUsernameText.text = "Hello, " + instance.initializationData.username;
+                    UI_Main.instance._yourVictoriesText.text = instance.data.victories.ToString();
+                    UI_Main.instance._yourRankText.text = instance.data.rank.ToString();
                     UI_Main.instance._menuElements.SetActive(true);
                     UI_Main.instance._registerElements.SetActive(false);
 
@@ -284,6 +273,11 @@ public class Player : MonoBehaviour
 
                 if(isFirstGrid)
                 {
+                    HexGridManager.Instance.ResetGrid();
+
+                    //DEBUG
+                    Debug.Log("GENEREZ O HARTA NOUA");
+
                     isFirstGrid = false;
                     HexGridManager.Instance.GenerateHexGrid(syncHexGrid);
                     UI_Main.instance.SetPlayerUIColor(Player.instance.data.isPlayer1);
@@ -292,7 +286,10 @@ public class Player : MonoBehaviour
                 }
                 else
                 {
-                    HexGridManager.Instance.SyncHexGrid(syncHexGrid);
+                    if (HexGridManager.Instance.gridGenerated)
+                    {
+                        HexGridManager.Instance.SyncHexGrid(syncHexGrid);
+                    }                    
                 }              
                 break;
 
@@ -304,12 +301,12 @@ public class Player : MonoBehaviour
                         Debug.LogError("Only one Castle Allowed!");
                         break;
                     case 1:
-                        //RushSyncRequest();
+                        RushSyncRequest();
 
-                        Packet SyncGridPacket = new Packet();
-                        HexGridManager.Instance._isCastleBuild = true;
-                        SyncGridPacket.Write((int)RequestsID.SYNC_GRID);
-                        Sender.TCP_Send(SyncGridPacket);
+                        //Packet SyncGridPacket = new Packet();
+                        //HexGridManager.Instance._isCastleBuild = true;
+                        //SyncGridPacket.Write((int)RequestsID.SYNC_GRID);
+                        //Sender.TCP_Send(SyncGridPacket);
                         break;
                 }
                 break;
@@ -466,8 +463,9 @@ public class Player : MonoBehaviour
                     UI_InGameMenu.instance._endGameElements.SetActive(false);
                     UI_Main.instance._menuElements.SetActive(true);
 
-                    HexGridManager.Instance.ResetGrid();
-                    isFirstGrid = true;                    
+                  //  HexGridManager.Instance.ResetGrid();
+                    isFirstGrid = true;
+                    RushSyncRequest();
                 }
                 else
                 {
@@ -487,12 +485,19 @@ public class Player : MonoBehaviour
 
     private void SyncPlayerData(Data.Player player)
     {
-        UI_Main.instance._goldText.text = player.gold.ToString();
-        UI_Main.instance._gemsText.text = player.gems.ToString();
+        //UI_Main.instance._goldText.text = player.gold.ToString();
+        // UI_Main.instance._gemsText.text = player.gems.ToString();
+
+        UI_Main.instance._yourVictoriesText.text = instance.data.victories.ToString();
+        UI_Main.instance._yourRankText.text = instance.data.rank.ToString();
+
         UI_Main.instance._woodText.text = player.wood.ToString();
         UI_Main.instance._stoneText.text = player.stone.ToString();
         UI_Main.instance._foodText.text = player.food.ToString();
 
+        instance.data.accountID = player.accountID;
+        instance.data.victories = player.victories;
+        instance.data.rank = player.rank;
         instance.data.gems = player.gems;
         instance.data.gold = player.gold;
         instance.data.stone = player.stone;
@@ -500,7 +505,10 @@ public class Player : MonoBehaviour
         instance.data.food = player.food;
 
         instance.data.units = player.units;
-       
+
+        //*********DEBUG**********
+        Debug.Log("Jucatorul " + instance.data.accountID + " are " + instance.data.units.Count + " unitati");
+
         instance.data.hasCastle = player.hasCastle;
         instance.data.castle_x = player.castle_x;
         instance.data.castle_y = player.castle_y;
@@ -509,7 +517,25 @@ public class Player : MonoBehaviour
         instance.data.isSearching = player.isSearching;
         instance.data.inGame = player.inGame;
         instance.data.gameID = player.gameID;
-        instance.data.isPlayer1 = player.isPlayer1;         
+        instance.data.isPlayer1 = player.isPlayer1;
+
+
+        if(instance.data.inGame == 1)
+        {
+            Packet SyncGridPacket = new Packet();
+            SyncGridPacket.Write((int)RequestsID.SYNC_GRID);
+            Sender.TCP_Send(SyncGridPacket);
+
+            Packet SyncGamePacket = new Packet();
+            SyncGamePacket.Write((int)RequestsID.SYNC_GAME);
+            SyncGamePacket.Write(instance.data.gameID);
+            Sender.TCP_Send(SyncGamePacket);
+        }
+        else
+        {
+            isFirstGrid = true;
+        }
+
     }
 
     private void SyncGameData(Data.Game gameData)
@@ -545,9 +571,7 @@ public class Player : MonoBehaviour
                 UI_Main.instance._opponentNameText.color = Color.red;
             }
         }
-
-
-        //TODO : result check to update UI
+       
 
         switch (game.gameData.gameResult)
         {
@@ -558,7 +582,7 @@ public class Player : MonoBehaviour
                 if (data.isPlayer1 == 1)
                 {                   
                     UI_InGameMenu.instance._matchResultText.text = "YOU WON";
-                    UI_InGameMenu.instance._resultReasonText.text = "Enemy Castle was Destroyed";                   
+                    UI_InGameMenu.instance._resultReasonText.text = "Enemy Castle was destroyed";                   
                 }
                 else
                 {                   
@@ -566,6 +590,7 @@ public class Player : MonoBehaviour
                     UI_InGameMenu.instance._resultReasonText.text = "Your Castle was destroyed";                    
                 }
                 UI_InGameMenu.instance._endGameElements.SetActive(true);
+                isGameOver = true;
                 break;
 
             case Data.GameResultID.P2_WON:
@@ -575,7 +600,7 @@ public class Player : MonoBehaviour
                 if (data.isPlayer1 == 0)
                 {                    
                     UI_InGameMenu.instance._matchResultText.text = "YOU WON";
-                    UI_InGameMenu.instance._resultReasonText.text = "Enemy Castle was Destroyed";                   
+                    UI_InGameMenu.instance._resultReasonText.text = "Enemy Castle was destroyed";                   
                 }
                 else
                 {                    
@@ -583,6 +608,7 @@ public class Player : MonoBehaviour
                     UI_InGameMenu.instance._resultReasonText.text = "Your Castle was destroyed";                    
                 }
                 UI_InGameMenu.instance._endGameElements.SetActive(true);
+                isGameOver = true;
                 break;
 
             case Data.GameResultID.P1_LEFT:
@@ -595,6 +621,7 @@ public class Player : MonoBehaviour
                     UI_InGameMenu.instance._resultReasonText.text = "Enemy left the match";
                 }                
                 UI_InGameMenu.instance._endGameElements.SetActive(true);
+                isGameOver = true;
                 break;
 
             case Data.GameResultID.P2_LEFT:
@@ -607,37 +634,21 @@ public class Player : MonoBehaviour
                     UI_InGameMenu.instance._resultReasonText.text = "Enemy left the match";
                 }
                 UI_InGameMenu.instance._endGameElements.SetActive(true);
+                isGameOver = true;
                 break;
-        }
-
-
-
-
-        if(game.gameData.gameResult == Data.GameResultID.P1_WON)
-        {
-            if(data.isPlayer1 == 1)
-            {
-                UI_Main.instance._elements.SetActive(false);
-                UI_BuildingOptions.instance.SetStatus(false);
-                UI_InGameMenu.instance._elements.SetActive(false);
-
-                UI_InGameMenu.instance._matchResultText.text = "YOU WON";
-                UI_InGameMenu.instance._resultReasonText.text = "Enemy Castle was Destroyed";
-
-                UI_InGameMenu.instance._endGameElements.SetActive(true);
-            }
-        }
+        }      
     }
 
     private void RushSyncRequest()
     {
-        Packet SyncGridPacket = new Packet();
-        SyncGridPacket.Write((int)RequestsID.SYNC_GRID);
-        Sender.TCP_Send(SyncGridPacket);
-
         Packet SyncPlayerPacket = new Packet();
         SyncPlayerPacket.Write((int)RequestsID.SYNC);
         Sender.TCP_Send(SyncPlayerPacket);
+
+        //Packet SyncGridPacket = new Packet();
+        //SyncGridPacket.Write((int)RequestsID.SYNC_GRID);
+        //Sender.TCP_Send(SyncGridPacket);
+        
     }
 
     private void SendPreSync()

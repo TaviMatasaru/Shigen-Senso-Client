@@ -65,6 +65,11 @@ public class UI_InGameMenu : MonoBehaviour
 
     private void ExitGameButtonClicked()
     {
+        Packet packet = new Packet();
+        packet.Write((int)Player.RequestsID.LEAVE_MATCH);
+        packet.Write(Player.instance.initializationData.accountID);
+        Sender.TCP_Send(packet);
+
         Application.Quit();
     }
 }

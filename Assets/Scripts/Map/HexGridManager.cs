@@ -40,17 +40,19 @@ public class HexGridManager : MonoBehaviour
             return;
         }
         Instance = this;
-        DontDestroyOnLoad(this.gameObject);
+       // DontDestroyOnLoad(this.gameObject);
     }
 
 
     public void GenerateHexGrid(Data.HexGrid grid)
     {
+        gridGenerated = false;
+
         hexGrid = new Tile[grid.rows, grid.columns];
         pathGrid = new PathNode[grid.rows, grid.columns];
 
         height = grid.rows;
-        width = grid.columns;
+        width = grid.columns;       
 
         foreach (Data.HexTile tile in grid.hexTiles)
         {
@@ -169,62 +171,7 @@ public class HexGridManager : MonoBehaviour
                     player2CastleBuild = true;
                     player2CastleFound = true;
                 }
-            }
-
-            //if (player1CastleBuild == true && player2CastleBuild == true)
-            //{               
-            //    if (player1CastleFound == false)
-            //    {                    
-            //        if (Player.instance.data.isPlayer1 == 1)
-            //        {
-            //            UI_Main.instance._elements.SetActive(false);
-            //            UI_BuildingOptions.instance.SetStatus(false);
-            //            UI_InGameMenu.instance._elements.SetActive(false);
-
-            //            UI_InGameMenu.instance._matchResultText.text = "YOU LOST";
-            //            UI_InGameMenu.instance._resultReasonText.text = "Your Castle was destroyed";
-
-            //            UI_InGameMenu.instance._endGameElements.SetActive(true);
-            //        }
-            //        else
-            //        {
-            //            UI_Main.instance._elements.SetActive(false);
-            //            UI_BuildingOptions.instance.SetStatus(false);
-            //            UI_InGameMenu.instance._elements.SetActive(false);
-
-            //            UI_InGameMenu.instance._matchResultText.text = "YOU WON";
-            //            UI_InGameMenu.instance._resultReasonText.text = "Enemy Castle was Destroyed";
-
-            //            UI_InGameMenu.instance._endGameElements.SetActive(true);
-            //        }
-            //    }
-
-            //    if (player2CastleFound == false)
-            //    {                    
-            //        if (Player.instance.data.isPlayer1 == 0)
-            //        {
-            //            UI_Main.instance._elements.SetActive(false);
-            //            UI_BuildingOptions.instance.SetStatus(false);
-            //            UI_InGameMenu.instance._elements.SetActive(false);
-
-            //            UI_InGameMenu.instance._matchResultText.text = "YOU LOST";
-            //            UI_InGameMenu.instance._resultReasonText.text = "Your Castle was destroyed";
-
-            //            UI_InGameMenu.instance._endGameElements.SetActive(true);
-            //        }
-            //        else
-            //        {
-            //            UI_Main.instance._elements.SetActive(false);
-            //            UI_BuildingOptions.instance.SetStatus(false);
-            //            UI_InGameMenu.instance._elements.SetActive(false);
-
-            //            UI_InGameMenu.instance._matchResultText.text = "YOU WON";
-            //            UI_InGameMenu.instance._resultReasonText.text = "Enemy Castle was Destroyed";
-
-            //            UI_InGameMenu.instance._endGameElements.SetActive(true);
-            //        }
-            //    }
-            //}
+            }        
         }                
     }
 

@@ -6,14 +6,17 @@ public static class Data
 {
     public class Player
     {
+        public long accountID = -1;
         public string username = "username";
 
+        public int victories = 0;
+        public int rank = 0;
 
-        public int gold = 1;
+        public int gold = 100;
         public int gems = 10;
-        public int wood = 10;
-        public int stone = 10;
-        public int food = 5;
+        public int wood = 1000;
+        public int stone = 1000;
+        public int food = 500;
 
         public int stoneProduction = 0;
         public int woodProduction = 0;
@@ -26,12 +29,11 @@ public static class Data
         public int isOnline = 0;
         public int isSearching = 0;
         public int inGame = 0;
+
         public long gameID = 0;
         public int isPlayer1 = 0;
 
-        public GameData game = new GameData();
-
-        public List<Unit> units = new List<Unit>();        
+        public List<Unit> units = new List<Unit>();
     }
 
     public class InitializationData
@@ -129,7 +131,8 @@ public static class Data
     {
         IN_GAME = 0,
         LEFT = 1,
-        DISCONNECTED = 2
+        DISCONNECTED = 2,
+        CASTLE_DESTROYED = 3
     }
 
     public enum GameResultID

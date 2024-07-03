@@ -20,8 +20,8 @@ public class UI_Main : MonoBehaviour
     [SerializeField] public TextMeshProUGUI _opponentRankText = null;
 
 
-    [SerializeField] public TextMeshProUGUI _goldText = null;
-    [SerializeField] public TextMeshProUGUI _gemsText = null;
+    //[SerializeField] public TextMeshProUGUI _goldText = null;
+    //[SerializeField] public TextMeshProUGUI _gemsText = null;
     [SerializeField] public TextMeshProUGUI _woodText = null;
     [SerializeField] public TextMeshProUGUI _stoneText = null;
     [SerializeField] public TextMeshProUGUI _foodText = null;
@@ -30,6 +30,8 @@ public class UI_Main : MonoBehaviour
     [SerializeField] public TextMeshProUGUI _registerErrorText = null;
 
     [SerializeField] public TextMeshProUGUI _menuUsernameText = null;
+    [SerializeField] public TextMeshProUGUI _yourVictoriesText = null;
+    [SerializeField] public TextMeshProUGUI _yourRankText = null;
 
     [SerializeField] public TMP_InputField _loginUsernameInput = null;
     [SerializeField] public TMP_InputField _loginPasswordInput = null;
@@ -40,16 +42,22 @@ public class UI_Main : MonoBehaviour
 
     [SerializeField] private Button _loginButton = null;
     [SerializeField] private Button _registerButton = null;
+
     [SerializeField] private Button _goRegisterButton = null;
     [SerializeField] private Button _goLoginButton = null;
-
-
 
     [SerializeField] private Button _openGameMenuButton = null;
 
     [SerializeField] private Button _searchButton = null;
     [SerializeField] private Button _menuLogoutButton = null;
+
     [SerializeField] private Button _menuExitGameButton = null;
+
+    //[SerializeField] private Button _inGameExitGameButton = null;
+    //[SerializeField] private Button _endGameExitGameButton = null;
+
+    [SerializeField] private Button _loginExitGameButton = null;
+    [SerializeField] private Button _registerExitGameButton = null;
 
     [SerializeField] private Button _stopSearchingButton = null;
 
@@ -83,8 +91,11 @@ public class UI_Main : MonoBehaviour
     {
         _loginButton.onClick.AddListener(LoginButtonClicked);
         _goLoginButton.onClick.AddListener(GoLoginButtonClicked);
+        _loginExitGameButton.onClick.AddListener(ExitGameButtonClicked);
+
         _registerButton.onClick.AddListener(RegisterButtonClicked);
-        _goRegisterButton.onClick.AddListener(GoRegisterButtonClicked);       
+        _goRegisterButton.onClick.AddListener(GoRegisterButtonClicked);
+        _registerExitGameButton.onClick.AddListener(ExitGameButtonClicked);
 
         _searchButton.onClick.AddListener(SearchButtonClicked);
         _menuLogoutButton.onClick.AddListener(LogoutButtonClicked);

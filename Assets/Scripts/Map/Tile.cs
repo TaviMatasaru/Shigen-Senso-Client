@@ -36,7 +36,7 @@ public class Tile : MonoBehaviour
 
         if(this.tile.hexType == (int)Player.HexType.FREE_LAND)
         {
-            if(HexGridManager.Instance._isCastleBuild == false)
+            if(Player.instance.data.hasCastle == false)
             {
                 bool canPlaceCastle = true;
                 List<Tile> neighbours = HexGridManager.Instance.Get2RingsOfNeighbours(this);

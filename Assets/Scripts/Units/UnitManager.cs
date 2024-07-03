@@ -35,7 +35,7 @@ public class UnitManager : MonoBehaviour
 
     public void SpawnNewUnits()
     {
-        if (HexGridManager.Instance._isCastleBuild)
+        if (Player.instance.data.hasCastle)
         {
             if (Player.instance.data.units.Count > 0)
             {

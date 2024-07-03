@@ -312,6 +312,7 @@ public class UI_BuildingOptions : MonoBehaviour
     {
         _buildingElements.SetActive(status);
         _castleElement.SetActive(status);
+        _castleOptionsElement.SetActive(status);
         _armyCampElement.SetActive(status);
         _openArmyCampElement.SetActive(status);
     }

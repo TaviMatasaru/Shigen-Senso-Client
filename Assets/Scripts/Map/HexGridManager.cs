@@ -21,13 +21,13 @@ public class HexGridManager : MonoBehaviour
     public bool gridGenerated = false;
     public Tile player1CastleTile;
     public Tile player2CastleTile;
-    private bool player1CastleBuild = false;
-    private bool player2CastleBuild = false;
+    //private bool player1CastleBuild = false;
+    //private bool player2CastleBuild = false;
 
     public int player1ArmyCampCount = 0;
     public int player2ArmyCampCount = 0;
-    bool player1CastleFound = false;
-    bool player2CastleFound = false;
+    //bool player1CastleFound = false;
+    //bool player2CastleFound = false;
 
     public Tile[,] hexGrid;
     public PathNode[,] pathGrid;    
@@ -71,6 +71,7 @@ public class HexGridManager : MonoBehaviour
 
             pathGrid[tile.x, tile.y] = new PathNode(hexTile);
         }
+
         gridGenerated = true;
     }
 
@@ -105,8 +106,8 @@ public class HexGridManager : MonoBehaviour
         player1ArmyCampCount = 0;
         player2ArmyCampCount = 0;
 
-        player1CastleFound = false;
-        player2CastleFound = false;
+        //player1CastleFound = false;
+        //player2CastleFound = false;
 
         if(gridGenerated == true)
         {
@@ -146,7 +147,7 @@ public class HexGridManager : MonoBehaviour
                         if (Player.instance.data.isPlayer1 == 1)
                         {
                             player1CastleTile = hexGrid[x_pos, y_pos];
-                            player1CastleBuild = true;
+                           // player1CastleBuild = true;
                         }
 
                     }
@@ -155,22 +156,22 @@ public class HexGridManager : MonoBehaviour
                         if (Player.instance.data.isPlayer1 == 0)
                         {
                             player2CastleTile = hexGrid[x_pos, y_pos];
-                            player2CastleBuild = true;
+                          //  player2CastleBuild = true;
                         }
 
                     }
                 }
 
-                if (tile.hexType == (int)Player.HexType.PLAYER1_CASTLE)
-                {
-                    player1CastleBuild = true;
-                    player1CastleFound = true;
-                }
-                if (tile.hexType == (int)Player.HexType.PLAYER2_CASTLE)
-                {
-                    player2CastleBuild = true;
-                    player2CastleFound = true;
-                }
+                //if (tile.hexType == (int)Player.HexType.PLAYER1_CASTLE)
+                //{
+                //    player1CastleBuild = true;
+                //    player1CastleFound = true;
+                //}
+                //if (tile.hexType == (int)Player.HexType.PLAYER2_CASTLE)
+                //{
+                //    player2CastleBuild = true;
+                //    player2CastleFound = true;
+                //}
             }        
         }                
     }

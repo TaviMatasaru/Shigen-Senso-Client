@@ -274,12 +274,16 @@ public class Player : MonoBehaviour
                 if(isFirstGrid)
                 {
                     HexGridManager.Instance.ResetGrid();
+                    UnitManager.instance.RemoveAllUnits();
 
-                    //DEBUG
+                    //*************DEBUG****************
                     Debug.Log("GENEREZ O HARTA NOUA");
+                    Debug.Log("Harta Primita de la server are :" + syncHexGrid.hexTiles.Count + "hexagoane");
 
                     isFirstGrid = false;
                     HexGridManager.Instance.GenerateHexGrid(syncHexGrid);
+                    
+
                     UI_Main.instance.SetPlayerUIColor(Player.instance.data.isPlayer1);
                     UI_Main.instance._searchingElements.SetActive(false);
                     UI_Main.instance._elements.SetActive(true);
@@ -505,9 +509,7 @@ public class Player : MonoBehaviour
         instance.data.food = player.food;
 
         instance.data.units = player.units;
-
-        //*********DEBUG**********
-        Debug.Log("Jucatorul " + instance.data.accountID + " are " + instance.data.units.Count + " unitati");
+      
 
         instance.data.hasCastle = player.hasCastle;
         instance.data.castle_x = player.castle_x;

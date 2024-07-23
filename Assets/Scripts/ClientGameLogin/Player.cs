@@ -274,11 +274,7 @@ public class Player : MonoBehaviour
                 if(isFirstGrid)
                 {
                     HexGridManager.Instance.ResetGrid();
-                    UnitManager.instance.RemoveAllUnits();
-
-                    //*************DEBUG****************
-                    Debug.Log("GENEREZ O HARTA NOUA");
-                    Debug.Log("Harta Primita de la server are :" + syncHexGrid.hexTiles.Count + "hexagoane");
+                    UnitManager.instance.RemoveAllUnits();                    
 
                     isFirstGrid = false;
                     HexGridManager.Instance.GenerateHexGrid(syncHexGrid);
@@ -305,12 +301,7 @@ public class Player : MonoBehaviour
                         Debug.LogError("Only one Castle Allowed!");
                         break;
                     case 1:
-                        RushSyncRequest();
-
-                        //Packet SyncGridPacket = new Packet();
-                        //HexGridManager.Instance._isCastleBuild = true;
-                        //SyncGridPacket.Write((int)RequestsID.SYNC_GRID);
-                        //Sender.TCP_Send(SyncGridPacket);
+                        RushSyncRequest();                        
                         break;
                 }
                 break;

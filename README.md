@@ -1,4 +1,4 @@
-# Shigen Senso Client
+# Shigen Senso
 
 Shigen Senso is a strategic game where players manage resources, build structures, and engage in battles on a hexagonal grid map. This repository contains the client-side code of the game developed using Unity. 
 

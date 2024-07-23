@@ -42,3 +42,6 @@ The core logic of the game client is implemented in C#. This includes the hexago
 ### Object-Oriented Design
 
 The game client is designed using object-oriented principles. Key game elements such as tiles, structures, and units are represented as classes, promoting modularity and code reuse. This design approach also makes it easier to extend the game with new features and content.
+
+## Game Demo
+- https://youtu.be/0ALPqSQx0po

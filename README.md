@@ -45,3 +45,33 @@ The game client is designed using object-oriented principles. Key game elements 
 
 ## Game Demo
 - https://youtu.be/0ALPqSQx0po
+
+## Images 
+
+## Hexagon Types
+![Free Land](images/hex_freeland.png)
+![Mountain](images/hex_mountain.png)
+![Forest](images/hex_forest.png)
+![Crops](images/hex_crops.png)
+
+## Map
+![Map](images/map_complete.png)
+
+## Structures
+![Stone Mine](images/struct_stoneMine.png)
+![Sawmill](images/struct_sawmill.png)
+![Farm](images/struct_farm.png)
+
+## Resource Collection
+![Stone Mine x2](images/struct_stoneMine_x2.png)
+![Stone Mine x3](images/struct_stoneMine_x3.png)
+
+## UI
+![Login](images/ui_login.png)
+![Main Menu](images/ui_mainManu.png)
+![In Game UI](images/ui_player2.png)
+![Not Enough Resources](images/ui_no_resources.png)
+![Successfull Build](images/ui_yes_resources.png)
+
+## Pathfinding
+![Pathfinding](images/ui_unit_pathfinding.png)

@@ -50,7 +50,7 @@ The game client is designed using object-oriented principles. Key game elements 
 
 ## Hexagon Types
 ![Free Land](images/hex_freeland.png)
-![Mountain](images/hex_mountain.png)
+![Mountain](images/hex_mountian.png)
 ![Forest](images/hex_forest.png)
 ![Crops](images/hex_crops.png)
 
@@ -63,8 +63,8 @@ The game client is designed using object-oriented principles. Key game elements 
 ![Farm](images/struct_farm.png)
 
 ## Resource Collection
-![Stone Mine x2](images/struct_stoneMine_x2.png)
-![Stone Mine x3](images/struct_stoneMine_x3.png)
+![Stone Mine x2](images/struct_stoneMine_2x.png)
+![Stone Mine x3](images/struct_stoneMine_3x.png)
 
 ## UI
 ![Login](images/ui_login.png)
@@ -74,4 +74,4 @@ The game client is designed using object-oriented principles. Key game elements 
 ![Successfull Build](images/ui_yes_resources.png)
 
 ## Pathfinding
-![Pathfinding](images/ui_unit_pathfinding.png)
+![Pathfinding](images/ui_unit_pathdinding.png)
